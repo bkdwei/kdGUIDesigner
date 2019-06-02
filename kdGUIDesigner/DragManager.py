@@ -3,6 +3,7 @@ Created on 2019年6月2日
 
 @author: bkd
 '''
+from tkinter.simpledialog import askstring
 from kdGUI import *
 
 
@@ -64,6 +65,7 @@ class DragManager():
         widget = None
         if clazz == "Push Button" :
             widget = Button("button", target)
+            widget.doubleClick(self.on_button_doubleClicked)
         elif clazz == "Lable" :
             widget = Label("label", target)
         elif clazz == "Vertical Layout":
@@ -87,3 +89,9 @@ class DragManager():
         else :
             print("unknow widget class" + clazz)
         return widget
+
+    def on_button_doubleClicked(self, event):
+        print(event.widget.text())
+        new_value = askstring("input new value", "input new value for button")
+        event.widget.setText(new_value)
+    
