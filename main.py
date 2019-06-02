@@ -8,9 +8,9 @@ Created on 2019年5月9日
 from tkinter import messagebox
 
 if __name__ == '__main__':
-    try:
-        from kdGUIDesigner.kdGUIDesigner import main
-        main()
-    except Exception as e:
-        print(e)
-        messagebox.showerror("系统异常", str(e))
+#     try:
+    from kdGUIDesigner.kdGUIDesigner import main
+    main()
+#     except Exception as e:
+#         print(e)
+#         messagebox.showerror("系统异常", str(e))
