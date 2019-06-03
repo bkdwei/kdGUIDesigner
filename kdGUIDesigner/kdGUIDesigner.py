@@ -182,6 +182,17 @@ class kdGUIDesigner(Window):
         gl_main = HorizotalLayout("MainWindos - untitle", self)
 #         gl_main = GridLayout("MainWindos - untitle", self)
         self.addWidget(gl_main, expand=YES)
+        menu_layout = Menu(False, gl_main)
+        
+        menu_sub_layout = Menu(False, menu_layout)
+        menu_sub_layout.addAction("Vertical Layout", lambda :self.setMainWindowLayout(VERTICAL))
+        menu_sub_layout.addAction("Horizontal Layout", lambda :self.setMainWindowLayout(HORIZONTAL))
+        menu_sub_layout.addAction("Grid Layout", lambda :self.setMainWindowLayout(GRID))
+        menu_layout.addMenu("layout1", menu_sub_layout)
+        addContextMenu(gl_main, menu_layout)
+        
+        print(dir(gl_main))
+        print(self.get_variable_name(gl_main))
 
     # object tree
     def addObjectTree(self):
@@ -196,6 +207,14 @@ class kdGUIDesigner(Window):
                 _lables = c.childrens()
                 for l in _lables:
                     self.dm.add_dragable(l)
+
+    def setMainWindowLayout(self, layout):
+#         self.gl_main.setLayout(layout)
+        print(layout)
+
+    def namestr(self,obj):
+        ns = globals()
+    　　return [name for name in namespace if ns[name] is obj]
 
 
 def drop(event):
