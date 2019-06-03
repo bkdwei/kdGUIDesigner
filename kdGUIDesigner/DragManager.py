@@ -8,6 +8,7 @@ from kdGUI import *
 
 
 class DragManager():
+    show_widget_property = kdSignal()
 
     def add_dragable(self, widget):
         widget.bind("<ButtonPress-1>", self.on_start)
@@ -35,7 +36,7 @@ class DragManager():
       
         # get parent
         print("get parent")
-        if not any([isinstance(target, GridLayout), isinstance(target, VerticalLayout), isinstance(target, HorizotalLayout)]):
+        if not any([isinstance(target, GridLayout), isinstance(target, VerticalLayout), isinstance(target, HorizotalLayout), isinstance(target, Container)]):
             target = target.master
         
         # create widget 
@@ -50,7 +51,7 @@ class DragManager():
         if isinstance(target, GridLayout):
             target.addWidgetOnRow(widget)
             print("add in GridLayout")
-        if any([isinstance(target, VerticalLayout), isinstance(target, HorizotalLayout)]) :
+        if any([isinstance(target, VerticalLayout), isinstance(target, HorizotalLayout), isinstance(target, HorizotalLayout), isinstance(target, Container)]) :
             target.addWidget(widget)
             print("add in VerticalLayout or HorizotalLayout")
             
@@ -88,6 +89,13 @@ class DragManager():
             widget = LineEdit("LineEdit", target)  
         else :
             print("unknow widget class" + clazz)
+        
+        if widget:
+                menu_delete = Menu(False, target)
+                menu_delete.addAction("delete", lambda :self.deleteWidget(widget))
+                addContextMenu(widget, menu_delete)
+                
+                widget.bind("<Button-1>", self.show_properties)
         return widget
 
     def on_button_doubleClicked(self, event):
@@ -95,3 +103,9 @@ class DragManager():
         new_value = askstring("input new value", "input new value for button")
         event.widget.setText(new_value)
     
+    def deleteWidget(self, widget):
+        widget.destroy()
+
+    def show_properties(self, event):
+        self.show_widget_property.emit(event.widget.__class__.__name__)
+        

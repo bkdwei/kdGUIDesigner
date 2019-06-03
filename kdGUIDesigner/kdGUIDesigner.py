@@ -6,6 +6,7 @@ Created on 2019年6月2日
 from tkinter.constants import *
 
 from kdGUI import *
+from tkintertable import TableCanvas, TableModel
 from .DragManager import DragManager
 
 
@@ -29,7 +30,8 @@ class kdGUIDesigner(Window):
         self.addInputWidgets()
         self.addDisplayWidgets()
         self.addMainWindow()
-        self.addObjectTree()
+#         self.addObjectTree()
+        self.addPropertyEditor()
 
         # self.widgetBox
     def addWidgetBox(self):
@@ -179,28 +181,41 @@ class kdGUIDesigner(Window):
         
     # main windows
     def addMainWindow(self):
-        gl_main = HorizotalLayout("MainWindos - untitle", self)
-#         gl_main = GridLayout("MainWindos - untitle", self)
-        self.addWidget(gl_main, expand=YES)
-        menu_layout = Menu(False, gl_main)
+        self.gl_main = Container("MainWindos - untitle", self)
+#         self.gl_main = GridLayout("MainWindos - untitle", self)
+        self.addWidget(self.gl_main, expand=YES)
+        menu_layout = Menu(False, self.gl_main)
         
         menu_sub_layout = Menu(False, menu_layout)
         menu_sub_layout.addAction("Vertical Layout", lambda :self.setMainWindowLayout(VERTICAL))
         menu_sub_layout.addAction("Horizontal Layout", lambda :self.setMainWindowLayout(HORIZONTAL))
-        menu_sub_layout.addAction("Grid Layout", lambda :self.setMainWindowLayout(GRID))
+        menu_sub_layout.addAction("Grid Layout", lambda :self.setMainWindowLayout(Window.GRID))
         menu_layout.addMenu("layout1", menu_sub_layout)
-        addContextMenu(gl_main, menu_layout)
-        
-        print(dir(gl_main))
-        print(self.get_variable_name(gl_main))
+        addContextMenu(self.gl_main, menu_layout)
+        print(self.get_variable_name(self.gl_main))
 
     # object tree
     def addObjectTree(self):
         tr_widget = TreeWidget(self)
         self.addWidget(tr_widget)
+
+    def addPropertyEditor(self):
+        c = Frame(self)
+        data = {
+            'rec1': {'Property': "ObjectName", 'Value': "Button"},
+            'rec2': {'Property': "text", 'Value': "PushButton"}
+       } 
+
+        table_property = TableCanvas(c, data=data, rows=10, cols=2, width=260, cellwidth=130)
+        self.addWidget(c)
+        table_property.show()
+        self.table_model = table_property.model
+        self.table_property = table_property
     
     def bindWidgetBox(self):
         self.dm = DragManager()
+        self.dm.show_widget_property.connect(self.show_widget_properties)
+        
         _containers = self.widgetBox.childrens()
         for c in _containers :
             if  isinstance(c, VerticalLayout):
@@ -209,12 +224,29 @@ class kdGUIDesigner(Window):
                     self.dm.add_dragable(l)
 
     def setMainWindowLayout(self, layout):
-#         self.gl_main.setLayout(layout)
+        self.gl_main.setLayout(layout)
         print(layout)
 
-    def namestr(self,obj):
+    def namestr(self, obj):
         ns = globals()
-    　　return [name for name in namespace if ns[name] is obj]
+        for name in ns:
+            if ns[name] is obj:
+                print("name" + name)
+                return name
+
+    def get_variable_name(self, x):
+        for k, v in locals().items():
+            if v is x:
+                return k
+
+    def show_widget_properties(self, clazz):
+        print("clazz:" + clazz)
+        self.table_model.createEmptyModel()
+        self.table_property.redraw()
+        
+        if clazz == "Button" :
+            self.table_property.addRow(None, Property='abc', Value='abc1')
+            self.table_property.addRow(None, Property='abcd', Value='abdc1')
 
 
 def drop(event):
@@ -224,6 +256,6 @@ def drop(event):
 def main():
     app = kdGUIDesigner()
    
-#     app.showMaximized()
+    app.showMaximized()
     app.run()
 
