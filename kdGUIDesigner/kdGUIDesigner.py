@@ -3,11 +3,16 @@ Created on 2019年6月2日
 
 @author: bkd
 '''
+import json
+from keyrings.alt import file
 from tkinter.constants import *
+from tkinter.filedialog import LoadFileDialog
 
 from kdGUI import *
 from tkintertable import TableCanvas, TableModel
+
 from .DragManager import DragManager
+from .widgetFactory import *
 
 
 class kdGUIDesigner(Window):
@@ -32,6 +37,7 @@ class kdGUIDesigner(Window):
         self.addMainWindow()
 #         self.addObjectTree()
         self.addPropertyEditor()
+        self.addMenuBar()
 
         # self.widgetBox
     def addWidgetBox(self):
@@ -227,6 +233,14 @@ class kdGUIDesigner(Window):
         self.gl_main.setLayout(layout)
         print(layout)
 
+    def addMenuBar(self):
+        menuBar = Menu(self)
+        self.addMenu(menuBar)
+        
+        fileMenu = Menu(menuBar)
+        fileMenu.addAction("open file", self.open_file)
+        menuBar.addMenu("file", fileMenu)
+
     def namestr(self, obj):
         ns = globals()
         for name in ns:
@@ -247,6 +261,49 @@ class kdGUIDesigner(Window):
         if clazz == "Button" :
             self.table_property.addRow(None, Property='abc', Value='abc1')
             self.table_property.addRow(None, Property='abcd', Value='abdc1')
+
+    def open_file(self):
+        fd = LoadFileDialog(self)
+        filename = fd.go()
+        self.showMessage("你打开了文件" + filename)
+        if filename:
+            with open(filename) as f:
+                j = json.loads(f.read())
+                self.initUIFromJson(self.gl_main, j)
+        self.showMessage("按钮的文本是" + self.btn1.text())
+    
+    def initUIFromJson(self, parent, json):
+        if isinstance(json, dict):
+            widget, properties, children = self.get_widget(json)
+            w = create_widget(widget, parent, properties)
+            if not w:
+                w = parent
+            else :
+                if "objectName" in properties :
+                    setattr(self, properties["objectName"], w)
+                    print("yes:" + getattr(self, properties["objectName"]).text())
+            if children:
+                self.initUIFromJson(w, children)
+        elif isinstance(json, list):
+            for j in json:
+                self.initUIFromJson(parent, j)
+
+    def get_widget(self, json):
+        widget = None
+        properties = None
+        children = None
+        for k in json:
+            widget = k
+            print("widget:" + k)
+            v = json[k]
+            if isinstance(v, dict):
+                if "properties" in v:
+                    properties = v["properties"]
+                print("properties:" , v["properties"])
+                if "children" in v:
+                    children = v["children"]
+                    print("children:" , children)
+        return widget, properties , children
 
 
 def drop(event):
