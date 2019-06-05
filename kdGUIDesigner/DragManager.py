@@ -9,6 +9,7 @@ from kdGUI import *
 
 class DragManager():
     show_widget_property = kdSignal()
+    add_widget_property = kdSignal()
 
     def add_dragable(self, widget):
         widget.bind("<ButtonPress-1>", self.on_start)
@@ -55,12 +56,7 @@ class DragManager():
             target.addWidget(widget)
             print("add in VerticalLayout or HorizotalLayout")
             
-        try:
-            print("d")
-#             target.configure(image=event.widget.cget("image"))
-        except EXCEPTION as e:
-            print("in error", str(e))
-            pass
+        self.add_widget_property.emit(widget, None, target)
 
     def create_widget(self, clazz, target):
         widget = None
@@ -91,11 +87,11 @@ class DragManager():
             print("unknow widget class" + clazz)
         
         if widget:
-                menu_delete = Menu(False, target)
-                menu_delete.addAction("delete", lambda :self.deleteWidget(widget))
-                addContextMenu(widget, menu_delete)
-                
-                widget.bind("<Button-1>", self.show_properties)
+            menu_delete = Menu(False, target)
+            menu_delete.addAction("delete", lambda :self.deleteWidget(widget))
+            addContextMenu(widget, menu_delete)
+            
+            widget.bind("<Button-1>", self.show_properties)
         return widget
 
     def on_button_doubleClicked(self, event):

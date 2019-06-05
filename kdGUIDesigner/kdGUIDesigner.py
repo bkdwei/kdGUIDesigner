@@ -24,6 +24,7 @@ class kdGUIDesigner(Window):
         self.setTheme("clearlooks")
         self.initUI()
         self.bindWidgetBox()
+        self.opened_file = None
 
     def initUI(self):
         self.addWidgetBox()
@@ -188,6 +189,7 @@ class kdGUIDesigner(Window):
     # main windows
     def addMainWindow(self):
         self.gl_main = Container("MainWindos - untitle", self)
+        self.gl_main.objectName = "gl_main"
 #         self.gl_main = GridLayout("MainWindos - untitle", self)
         self.addWidget(self.gl_main, expand=YES)
         menu_layout = Menu(False, self.gl_main)
@@ -221,6 +223,7 @@ class kdGUIDesigner(Window):
     def bindWidgetBox(self):
         self.dm = DragManager()
         self.dm.show_widget_property.connect(self.show_widget_properties)
+        self.dm.add_widget_property.connect(self.on_add_widget)
         
         _containers = self.widgetBox.childrens()
         for c in _containers :
@@ -238,7 +241,8 @@ class kdGUIDesigner(Window):
         self.addMenu(menuBar)
         
         fileMenu = Menu(menuBar)
-        fileMenu.addAction("open file", self.open_file)
+        fileMenu.addAction("open", self.open_file)
+        fileMenu.addAction("save", self.save_file)
         menuBar.addMenu("file", fileMenu)
 
     def namestr(self, obj):
@@ -267,10 +271,17 @@ class kdGUIDesigner(Window):
         filename = fd.go()
         self.showMessage("你打开了文件" + filename)
         if filename:
+            self.opened_file = filename
             with open(filename) as f:
                 j = json.loads(f.read())
+                self.ui_content = j 
                 self.initUIFromJson(self.gl_main, j)
-        self.showMessage("按钮的文本是" + self.btn1.text())
+#         self.showMessage("按钮的文本是" + self.btn1.text())
+
+    def save_file(self):
+        if self.opened_file:
+            with open(self.opened_file, "w") as f:
+                f.write(json.dumps(self.ui_content, indent=4, ensure_ascii=False))
     
     def initUIFromJson(self, parent, json):
         if isinstance(json, dict):
@@ -304,6 +315,23 @@ class kdGUIDesigner(Window):
                     children = v["children"]
                     print("children:" , children)
         return widget, properties , children
+
+    def on_add_widget(self, widget, properties, parent):
+        parent_name = parent.objectName
+        for  v in self.ui_content.values() :
+            print(v)
+            if "objectName" in v:
+                if v["objectName"] == parent_name:
+                    if not "children" in v:
+                        v["children"] = []
+                    item = {}
+                    prop = {}
+                    prop["objectName"] = widget.__class__.__name__.lower()
+                    item[widget.__class__.__name__] = prop
+                    prop["properties"] = {"text":widget.__class__.__name__.lower()}
+                    prop["children"] = {}
+                    v["children"].append(item)
+                    print(self.ui_content)
 
 
 def drop(event):

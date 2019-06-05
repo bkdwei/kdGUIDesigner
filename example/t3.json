@@ -1,0 +1,35 @@
+{
+    "Tk": {
+        "children": [
+            {
+                "Button": {
+                    "objectName": "btn1",
+                    "properties": {
+                        "text": "btn11"
+                    }
+                }
+            },
+            {
+                "Label": {
+                    "objectName": "label1",
+                    "properties": {
+                        "text": "label11"
+                    }
+                }
+            },
+            {
+                "Button": {
+                    "children": {},
+                    "objectName": "button",
+                    "properties": {
+                        "text": "button"
+                    }
+                }
+            }
+        ],
+        "objectName": "gl_main",
+        "properties": {
+            "layout": "vertical"
+        }
+    }
+}
