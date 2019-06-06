@@ -6,7 +6,7 @@ Created on 2019年6月2日
 import json
 from keyrings.alt import file
 from tkinter.constants import *
-from tkinter.filedialog import LoadFileDialog
+from tkinter.filedialog import LoadFileDialog, asksaveasfilename
 
 from kdGUI import *
 from tkintertable import TableCanvas, TableModel
@@ -25,6 +25,8 @@ class kdGUIDesigner(Window):
         self.initUI()
         self.bindWidgetBox()
         self.opened_file = None
+        del_widget_property.connect(self.on_del_widget)
+        self.ui_content = {"Tk":{"objectName":"gl_main", "children":[]}}
 
     def initUI(self):
         self.addWidgetBox()
@@ -224,6 +226,7 @@ class kdGUIDesigner(Window):
         self.dm = DragManager()
         self.dm.show_widget_property.connect(self.show_widget_properties)
         self.dm.add_widget_property.connect(self.on_add_widget)
+        self.dm.del_widget_property.connect(self.on_del_widget)
         
         _containers = self.widgetBox.childrens()
         for c in _containers :
@@ -282,7 +285,14 @@ class kdGUIDesigner(Window):
         if self.opened_file:
             with open(self.opened_file, "w") as f:
                 f.write(json.dumps(self.ui_content, indent=4, ensure_ascii=False))
-    
+                self.showMessage("保存文件成功" + self.opened_file)
+        else:
+            self.opened_file = asksaveasfilename()
+            if self.opened_file:
+                with open(self.opened_file, "w") as f:
+                    f.write(json.dumps(self.ui_content, indent=4, ensure_ascii=False))
+                    self.showMessage("保存文件成功" + self.opened_file)
+
     def initUIFromJson(self, parent, json):
         if isinstance(json, dict):
             widget, properties, children = self.get_widget(json)
@@ -291,8 +301,9 @@ class kdGUIDesigner(Window):
                 w = parent
             else :
                 if "objectName" in properties :
+                    w.objectName = properties["objectName"]
                     setattr(self, properties["objectName"], w)
-                    print("yes:" + getattr(self, properties["objectName"]).text())
+#                     print("yes:" + getattr(self, properties["objectName"]).text())
             if children:
                 self.initUIFromJson(w, children)
         elif isinstance(json, list):
@@ -303,35 +314,69 @@ class kdGUIDesigner(Window):
         widget = None
         properties = None
         children = None
-        for k in json:
+        for k, v in json.items():
             widget = k
-            print("widget:" + k)
-            v = json[k]
             if isinstance(v, dict):
                 if "properties" in v:
                     properties = v["properties"]
-                print("properties:" , v["properties"])
+                    properties["objectName"] = v["objectName"]
+                    print("properties:" , v["properties"])
                 if "children" in v:
                     children = v["children"]
                     print("children:" , children)
         return widget, properties , children
 
     def on_add_widget(self, widget, properties, parent):
-        parent_name = parent.objectName
-        for  v in self.ui_content.values() :
-            print(v)
-            if "objectName" in v:
-                if v["objectName"] == parent_name:
-                    if not "children" in v:
-                        v["children"] = []
-                    item = {}
-                    prop = {}
-                    prop["objectName"] = widget.__class__.__name__.lower()
-                    item[widget.__class__.__name__] = prop
-                    prop["properties"] = {"text":widget.__class__.__name__.lower()}
-                    prop["children"] = {}
-                    v["children"].append(item)
-                    print(self.ui_content)
+        parent_name = widget.parent.objectName
+        parent_node = self.find_parent(parent_name, self.ui_content)
+        if not parent_node:
+            raise("can not find parent node")
+            return
+
+        prop = {}
+        prop["objectName"] = widget.objectName
+        prop["properties"] = widget.properties
+        prop["children"] = []
+        item = {}
+        item[widget.__class__.__name__] = prop
+        parent_node["children"].append(item)
+        print(self.ui_content)
+
+    def find_parent(self, parent_name, ui_content):
+        for v in ui_content.values():
+            if v["objectName"] == parent_name:
+                return v
+            elif len(v["children"]) != 0 :
+                for child in v["children"]:
+                    parent_node = self.find_parent(parent_name, child)
+                    if  parent_node :
+                        return parent_node
+                    else:
+                        continue
+                    
+            else:
+                continue
+
+    def on_del_widget(self, widget, properties, parent):
+        parent_name = widget.parent.objectName
+        parent_node = self.find_parent(parent_name, self.ui_content)
+        if not parent_node:
+            raise("can not find parent node")
+            return
+        
+        match = False 
+        for child in parent_node["children"] :
+            if match:
+                break
+            for key, value in child.items():
+                if key == widget.__class__.__name__ and value["objectName"] == widget.objectName:
+                    parent_node["children"].remove(child)
+                    del child
+                    match = True
+                    break
+                else :
+                    continue
+        print(self.ui_content)
 
 
 def drop(event):

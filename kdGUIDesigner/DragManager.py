@@ -10,6 +10,10 @@ from kdGUI import *
 class DragManager():
     show_widget_property = kdSignal()
     add_widget_property = kdSignal()
+    del_widget_property = kdSignal()
+
+    def __init__(self):
+        self.wiget_index = {}
 
     def add_dragable(self, widget):
         widget.bind("<ButtonPress-1>", self.on_start)
@@ -60,21 +64,30 @@ class DragManager():
 
     def create_widget(self, clazz, target):
         widget = None
+        index = 0
+        if not clazz in self.wiget_index:
+            self.wiget_index[clazz] = 0
+        else :
+            index = self.wiget_index[clazz] + 1
+            self.wiget_index[clazz] = index
+        str_index = "_" + str(index)
+        
+        object_name = clazz.replace(" ", "") + str_index
         if clazz == "Push Button" :
-            widget = Button("button", target)
+            widget = Button(object_name, target)
             widget.doubleClick(self.on_button_doubleClicked)
         elif clazz == "Lable" :
-            widget = Label("label", target)
+            widget = Label(object_name, target)
         elif clazz == "Vertical Layout":
-            widget = VerticalLayout("Vertical Layout", target)
+            widget = VerticalLayout(object_name, target)
         elif clazz == "Horizontal Layout":
-            widget = HorizotalLayout("Horizontal Layout", target)                        
+            widget = HorizotalLayout(object_name, target)                        
         elif clazz == "Grid Layout":  
-            widget = GridLayout("GridLayout", target)
+            widget = GridLayout(object_name, target)
         elif clazz == "Radio Button" :
-            widget = RadioButton("RadioButton", target)
+            widget = RadioButton(object_name, target)
         elif clazz == "Check Button" :
-            widget = CheckButton("CheckButton", target)
+            widget = CheckButton(object_name, target)
         elif clazz == "List Widget" :
             widget = ListWidget(target)            
         elif clazz == "Tree Widget" :
@@ -82,11 +95,14 @@ class DragManager():
         elif clazz == "Combo Box" :
             widget = ComboBox(target)  
         elif clazz == "Line Edit" :
-            widget = LineEdit("LineEdit", target)  
+            widget = LineEdit(object_name, target)  
         else :
             print("unknow widget class" + clazz)
         
         if widget:
+            widget.parent = target
+            widget.objectName = object_name
+            widget.properties = {}
             menu_delete = Menu(False, target)
             menu_delete.addAction("delete", lambda :self.deleteWidget(widget))
             addContextMenu(widget, menu_delete)
@@ -100,8 +116,9 @@ class DragManager():
         event.widget.setText(new_value)
     
     def deleteWidget(self, widget):
+        self.del_widget_property.emit(widget, None, widget.master)
         widget.destroy()
 
     def show_properties(self, event):
         self.show_widget_property.emit(event.widget.__class__.__name__)
-        
+
