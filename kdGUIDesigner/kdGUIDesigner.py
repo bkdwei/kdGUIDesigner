@@ -12,6 +12,7 @@ from kdGUI import *
 from tkintertable import TableCanvas, TableModel
 
 from .DragManager import DragManager
+from .exception_handler import global_exception_hander
 from .widgetFactory import *
 
 
@@ -26,7 +27,14 @@ class kdGUIDesigner(Window):
         self.bindWidgetBox()
         self.opened_file = None
         del_widget_property.connect(self.on_del_widget)
-        self.ui_content = {"Tk":{"objectName":"gl_main", "children":[]}}
+        show_widget_property.connect(
+            self.show_widget_properties)
+        edit_widget_property.connect(self.on_edit_widget)
+        self.ui_content = {
+            "Tk": {"children": [], "properties": {"objectName": "gl_main"}}}
+
+        self.exception_handler = global_exception_hander()
+        self.exception_handler.patch_excepthook()
 
     def initUI(self):
         self.addWidgetBox()
@@ -47,159 +55,180 @@ class kdGUIDesigner(Window):
         self.widgetBox = VerticalLayout("widget Box", self)
         print(type(self.widgetBox))
         self.addWidget(self.widgetBox)
-            # 过滤
+        # 过滤
         le_filter = LineEdit("Filter", self.widgetBox)
         self.widgetBox.addWidget(le_filter)
-    
+
     # layouts
     def addLayouts(self):
-        vl_layouts = VerticalLayout("Layouts", self.widgetBox)
-        lb_verticalLayout = Label("Vertical Layout", vl_layouts)
+        vl_layouts = VerticalLayout(
+            "Layouts", self.widgetBox)
+        lb_verticalLayout = Label(
+            "Vertical Layout", vl_layouts)
         lb_verticalLayout.setAnchor("w")
         vl_layouts.addWidget(lb_verticalLayout)
-        
-        lb_horizontal = Label("Horizontal Layout", vl_layouts)
+
+        lb_horizontal = Label(
+            "Horizontal Layout", vl_layouts)
         lb_horizontal.setAnchor("w")
         vl_layouts.addWidget(lb_horizontal)
-        
+
         lb_gridLayout = Label("Grid Layout", vl_layouts)
         lb_gridLayout.setAnchor("w")
         vl_layouts.addWidget(lb_gridLayout)
         self.widgetBox.addWidget(vl_layouts)
-        
+
 #         childs = vl_layouts.children()
         print("vl_layouts:", type(vl_layouts))
-        
+
 #         for c in childs:
 #             print("childs" + c.text())
 
         # spacers
     def addSpacers(self):
-        vl_spacers = VerticalLayout("Spacers", self.widgetBox)
-        
-        lb_horizontalSpacer = Label("Horizontal Spacer", vl_spacers)
+        vl_spacers = VerticalLayout(
+            "Spacers", self.widgetBox)
+
+        lb_horizontalSpacer = Label(
+            "Horizontal Spacer", vl_spacers)
         lb_horizontalSpacer.setAnchor("w")
         vl_spacers.addWidget(lb_horizontalSpacer)
-        
-        lb_verticalSpacer = Label("Vertical Spacer", vl_spacers)
+
+        lb_verticalSpacer = Label(
+            "Vertical Spacer", vl_spacers)
         lb_verticalSpacer.setAnchor("w")
         vl_spacers.addWidget(lb_verticalSpacer)
-        
+
         self.widgetBox.addWidget(vl_spacers)
-    
+
     # buttons
     def addButtons(self):
-        vl_buttons = VerticalLayout("Buttons", self.widgetBox)
-        
+        vl_buttons = VerticalLayout(
+            "Buttons", self.widgetBox)
+
         lb_pushbutton = Label("Push Button", vl_buttons)
         lb_pushbutton.setAnchor("w")
         vl_buttons.addWidget(lb_pushbutton)
-        
+
         lb_radiobutton = Label("Radio Button", vl_buttons)
         lb_radiobutton.setAnchor("w")
         vl_buttons.addWidget(lb_radiobutton)
-        
+
         lb_checkbutton = Label("Check Button", vl_buttons)
         lb_checkbutton.setAnchor("w")
         vl_buttons.addWidget(lb_checkbutton)
-        
+
         self.widgetBox.addWidget(vl_buttons)
-    
+
     # item widgets
     def addItemWidgets(self):
-        vl_item_widgets = VerticalLayout("Item Widgets", self.widgetBox)
-        
-        lb_list_widget = Label("List Widget", vl_item_widgets)
+        vl_item_widgets = VerticalLayout(
+            "Item Widgets", self.widgetBox)
+
+        lb_list_widget = Label(
+            "List Widget", vl_item_widgets)
         lb_list_widget.setAnchor("w")
         vl_item_widgets.addWidget(lb_list_widget)
-        
-        lb_tree_widget = Label("Tree Widget", vl_item_widgets)
+
+        lb_tree_widget = Label(
+            "Tree Widget", vl_item_widgets)
         lb_tree_widget.setAnchor("w")
         vl_item_widgets.addWidget(lb_tree_widget)
-        
-        lb_table_widget = Label("Table Widget", vl_item_widgets)
+
+        lb_table_widget = Label(
+            "Table Widget", vl_item_widgets)
         lb_table_widget.setAnchor("w")
         vl_item_widgets.addWidget(lb_table_widget)
-        
+
         self.widgetBox.addWidget(vl_item_widgets)
 
     # containers
     def addContainers(self):
-        vl_containers = VerticalLayout("Containers", self.widgetBox)
-        
+        vl_containers = VerticalLayout(
+            "Containers", self.widgetBox)
+
         lb_scroll_area = Label("Scroll Area", vl_containers)
         lb_scroll_area.setAnchor("w")
         vl_containers.addWidget(lb_scroll_area)
-        
+
         lb_tab_widget = Label("Tab Widget", vl_containers)
         lb_tab_widget.setAnchor("w")
         vl_containers.addWidget(lb_tab_widget)
-        
-        self.widgetBox.addWidget(vl_containers) 
-    
+
+        self.widgetBox.addWidget(vl_containers)
+
     # input widget
     def addInputWidgets(self):
-        vl_input_widgets = VerticalLayout("Input Widgets", self.widgetBox)
-        
+        vl_input_widgets = VerticalLayout(
+            "Input Widgets", self.widgetBox)
+
         lb_combobox = Label("Combo Box", vl_input_widgets)
         lb_combobox.setAnchor("w")
         vl_input_widgets.addWidget(lb_combobox)
-        
+
         lb_lineedit = Label("Line Edit", vl_input_widgets)
         lb_lineedit.setAnchor("w")
         vl_input_widgets.addWidget(lb_lineedit)
-        
+
         lb_textedit = Label("Text Edit", vl_input_widgets)
         lb_textedit.setAnchor("w")
         vl_input_widgets.addWidget(lb_textedit)
-        
-        lb_plaintextedit = Label("Plain Text Edit", vl_input_widgets)
+
+        lb_plaintextedit = Label(
+            "Plain Text Edit", vl_input_widgets)
         lb_plaintextedit.setAnchor("w")
         vl_input_widgets.addWidget(lb_plaintextedit)
-        
+
         lb_spinbox = Label("Spin Box", vl_input_widgets)
         lb_spinbox.setAnchor("w")
         vl_input_widgets.addWidget(lb_spinbox)
-        
+
         lb_dateedit = Label("Date Edit", vl_input_widgets)
         lb_dateedit.setAnchor("w")
         vl_input_widgets.addWidget(lb_dateedit)
-        
+
         lb_timeedit = Label("Time Edit", vl_input_widgets)
         lb_timeedit.setAnchor("w")
         vl_input_widgets.addWidget(lb_timeedit)
-        
+
         self.widgetBox.addWidget(vl_input_widgets)
 
     # display widgets
     def addDisplayWidgets(self):
-        vl_display_widgets = VerticalLayout("Display Widgets", self.widgetBox)
-        
-        lb_label = Label("Lable", vl_display_widgets)
+        vl_display_widgets = VerticalLayout(
+            "Display Widgets", self.widgetBox)
+
+        lb_label = Label("Label", vl_display_widgets)
         lb_label.setAnchor("w")
         vl_display_widgets.addWidget(lb_label)
-        
-        lb_text_browser = Label("Text Browser", vl_display_widgets)
+
+        lb_text_browser = Label(
+            "Text Browser", vl_display_widgets)
         lb_text_browser.setAnchor("w")
         vl_display_widgets.addWidget(lb_text_browser)
-    
-        lb_progress_bar = Label("Prograss Bar", vl_display_widgets)
+
+        lb_progress_bar = Label(
+            "Prograss Bar", vl_display_widgets)
         lb_progress_bar.setAnchor("w")
-        vl_display_widgets.addWidget(lb_progress_bar)    
-        self.widgetBox.addWidget(vl_display_widgets)     
-        
+        vl_display_widgets.addWidget(lb_progress_bar)
+        self.widgetBox.addWidget(vl_display_widgets)
+
     # main windows
     def addMainWindow(self):
-        self.gl_main = Container("MainWindos - untitle", self)
+        self.gl_main = Container(
+            "MainWindos - untitle", self)
         self.gl_main.objectName = "gl_main"
 #         self.gl_main = GridLayout("MainWindos - untitle", self)
         self.addWidget(self.gl_main, expand=YES)
         menu_layout = Menu(False, self.gl_main)
-        
+
         menu_sub_layout = Menu(False, menu_layout)
-        menu_sub_layout.addAction("Vertical Layout", lambda :self.setMainWindowLayout(VERTICAL))
-        menu_sub_layout.addAction("Horizontal Layout", lambda :self.setMainWindowLayout(HORIZONTAL))
-        menu_sub_layout.addAction("Grid Layout", lambda :self.setMainWindowLayout(Window.GRID))
+        menu_sub_layout.addAction(
+            "Vertical Layout", lambda: self.setMainWindowLayout(VERTICAL))
+        menu_sub_layout.addAction(
+            "Horizontal Layout", lambda: self.setMainWindowLayout(HORIZONTAL))
+        menu_sub_layout.addAction(
+            "Grid Layout", lambda: self.setMainWindowLayout(Window.GRID))
         menu_layout.addMenu("layout1", menu_sub_layout)
         addContextMenu(self.gl_main, menu_layout)
         print(self.get_variable_name(self.gl_main))
@@ -214,23 +243,23 @@ class kdGUIDesigner(Window):
         data = {
             'rec1': {'Property': "ObjectName", 'Value': "Button"},
             'rec2': {'Property': "text", 'Value': "PushButton"}
-       } 
+        }
 
-        table_property = TableCanvas(c, data=data, rows=10, cols=2, width=260, cellwidth=130)
+        table_property = TableCanvas(
+            c, data=data, rows=10, cols=2, width=260, cellwidth=130)
         self.addWidget(c)
         table_property.show()
         self.table_model = table_property.model
         self.table_property = table_property
-    
+
     def bindWidgetBox(self):
         self.dm = DragManager()
-        self.dm.show_widget_property.connect(self.show_widget_properties)
-        self.dm.add_widget_property.connect(self.on_add_widget)
-        self.dm.del_widget_property.connect(self.on_del_widget)
-        
+        self.dm.add_widget_property.connect(
+            self.on_add_widget)
+
         _containers = self.widgetBox.childrens()
-        for c in _containers :
-            if  isinstance(c, VerticalLayout):
+        for c in _containers:
+            if isinstance(c, VerticalLayout):
                 _lables = c.childrens()
                 for l in _lables:
                     self.dm.add_dragable(l)
@@ -242,7 +271,7 @@ class kdGUIDesigner(Window):
     def addMenuBar(self):
         menuBar = Menu(self)
         self.addMenu(menuBar)
-        
+
         fileMenu = Menu(menuBar)
         fileMenu.addAction("open", self.open_file)
         fileMenu.addAction("save", self.save_file)
@@ -260,14 +289,13 @@ class kdGUIDesigner(Window):
             if v is x:
                 return k
 
-    def show_widget_properties(self, clazz):
-        print("clazz:" + clazz)
+    def show_widget_properties(self, widget):
         self.table_model.createEmptyModel()
+
+        for k, v in widget.properties.items():
+            self.table_property.addRow(
+                None, Property=k, Value=v)
         self.table_property.redraw()
-        
-        if clazz == "Button" :
-            self.table_property.addRow(None, Property='abc', Value='abc1')
-            self.table_property.addRow(None, Property='abcd', Value='abdc1')
 
     def open_file(self):
         fd = LoadFileDialog(self)
@@ -277,32 +305,38 @@ class kdGUIDesigner(Window):
             self.opened_file = filename
             with open(filename) as f:
                 j = json.loads(f.read())
-                self.ui_content = j 
+                self.ui_content = j
                 self.initUIFromJson(self.gl_main, j)
 #         self.showMessage("按钮的文本是" + self.btn1.text())
 
     def save_file(self):
         if self.opened_file:
             with open(self.opened_file, "w") as f:
-                f.write(json.dumps(self.ui_content, indent=4, ensure_ascii=False))
-                self.showMessage("保存文件成功" + self.opened_file)
+                f.write(json.dumps(self.ui_content,
+                                   indent=4, ensure_ascii=False))
+                self.showMessage(
+                    "保存文件成功" + self.opened_file)
         else:
             self.opened_file = asksaveasfilename()
             if self.opened_file:
                 with open(self.opened_file, "w") as f:
-                    f.write(json.dumps(self.ui_content, indent=4, ensure_ascii=False))
-                    self.showMessage("保存文件成功" + self.opened_file)
+                    f.write(json.dumps(
+                        self.ui_content, indent=4, ensure_ascii=False))
+                    self.showMessage(
+                        "保存文件成功" + self.opened_file)
 
     def initUIFromJson(self, parent, json):
         if isinstance(json, dict):
-            widget, properties, children = self.get_widget(json)
+            widget, properties, children = self.get_widget(
+                json)
             w = create_widget(widget, parent, properties)
             if not w:
                 w = parent
-            else :
-                if "objectName" in properties :
+            else:
+                if "objectName" in properties:
                     w.objectName = properties["objectName"]
-                    setattr(self, properties["objectName"], w)
+                    setattr(
+                        self, properties["objectName"], w)
 #                     print("yes:" + getattr(self, properties["objectName"]).text())
             if children:
                 self.initUIFromJson(w, children)
@@ -311,30 +345,29 @@ class kdGUIDesigner(Window):
                 self.initUIFromJson(parent, j)
 
     def get_widget(self, json):
-        widget = None
+        clazz = None
         properties = None
         children = None
         for k, v in json.items():
-            widget = k
+            clazz = k
             if isinstance(v, dict):
                 if "properties" in v:
                     properties = v["properties"]
-                    properties["objectName"] = v["objectName"]
-                    print("properties:" , v["properties"])
+                    print("properties:", v["properties"])
                 if "children" in v:
                     children = v["children"]
-                    print("children:" , children)
-        return widget, properties , children
+                    print("children:", children)
+        return clazz, properties, children
 
     def on_add_widget(self, widget, properties, parent):
         parent_name = widget.parent.objectName
-        parent_node = self.find_parent(parent_name, self.ui_content)
+        parent_node = self.find_widget(
+            parent_name, self.ui_content)
         if not parent_node:
             raise("can not find parent node")
             return
 
         prop = {}
-        prop["objectName"] = widget.objectName
         prop["properties"] = widget.properties
         prop["children"] = []
         item = {}
@@ -342,41 +375,49 @@ class kdGUIDesigner(Window):
         parent_node["children"].append(item)
         print(self.ui_content)
 
-    def find_parent(self, parent_name, ui_content):
+    def find_widget(self, obect_name, ui_content):
         for v in ui_content.values():
-            if v["objectName"] == parent_name:
+            if v["properties"]["objectName"] == obect_name:
                 return v
-            elif len(v["children"]) != 0 :
+            elif len(v["children"]) != 0:
                 for child in v["children"]:
-                    parent_node = self.find_parent(parent_name, child)
-                    if  parent_node :
+                    parent_node = self.find_widget(
+                        obect_name, child)
+                    if parent_node:
                         return parent_node
                     else:
                         continue
-                    
+
             else:
                 continue
 
     def on_del_widget(self, widget, properties, parent):
         parent_name = widget.parent.objectName
-        parent_node = self.find_parent(parent_name, self.ui_content)
+        parent_node = self.find_widget(
+            parent_name, self.ui_content)
         if not parent_node:
             raise("can not find parent node")
             return
-        
-        match = False 
-        for child in parent_node["children"] :
+
+        match = False
+        for child in parent_node["children"]:
             if match:
                 break
             for key, value in child.items():
-                if key == widget.__class__.__name__ and value["objectName"] == widget.objectName:
+                if key == widget.__class__.__name__ and value["properties"]["objectName"] == widget.objectName:
                     parent_node["children"].remove(child)
                     del child
                     match = True
                     break
-                else :
+                else:
                     continue
         print(self.ui_content)
+
+    def on_edit_widget(self, widget):
+        widget_node = self.find_widget(
+            widget.objectName, self.ui_content)
+        if widget_node:
+            widget_node["properties"] = widget.properties
 
 
 def drop(event):
@@ -385,7 +426,6 @@ def drop(event):
 
 def main():
     app = kdGUIDesigner()
-   
+
     app.showMaximized()
     app.run()
-

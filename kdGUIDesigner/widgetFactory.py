@@ -4,19 +4,58 @@ Created on 2019年6月4日
 @author: bkd
 '''
 
+import json
+from tkinter.simpledialog import askstring
+
 from kdGUI import *
 
+from .fileutil import get_file_realpath
+
+show_widget_property = kdSignal()
 del_widget_property = kdSignal()
+edit_widget_property = kdSignal()
+wp = get_file_realpath("../data/widget_properties.json")
+widget_properties = {}
+with open(wp, "r") as f:
+    widget_properties = json.loads(f.read())
 
 
-def create_widget(widgetName, parent, properties):
-    fn = factory.get(widgetName)
-    if fn :
+def show_properties(event):
+    show_widget_property.emit(event.widget)
+
+
+def create_widget(clazz, parent, properties):
+    fn = factory.get(clazz)
+    if fn:
+        #         获取默认属性
+        if clazz in widget_properties:
+            new_prop = widget_properties[clazz].copy()
+            new_prop.update(properties)
+            properties = new_prop
+#             创建组件
         widget = fn(parent, properties)
+
         if widget:
+            #             添加到父容器
+            addWidget(parent, widget)
+
+#             绑定修改文本事件
+            if clazz in ["LineEdit", "CheckButton", "RadioButton", "PushButton", "Label", "VerticalLayout", "HorizontalLayout", "GridLayout"]:
+                bind_doubleClicked(
+                    widget, on_widget_doubleClicked)
+
+#             新增右键删除组件功能
             menu_delete = Menu(False, parent)
-            menu_delete.addAction("delete", lambda :deleteWidget(widget))
+            menu_delete.addAction(
+                "delete", lambda: deleteWidget(widget))
             addContextMenu(widget, menu_delete)
+
+#             单击显示组件属性
+            widget.bind("<Button-1>", show_properties)
+
+#             设置组件的属性
+            widget.objectName = properties["objectName"]
+            widget.properties = properties
         return widget
 
 
@@ -25,54 +64,86 @@ def deleteWidget(widget):
     widget.destroy()
 
 
+def on_widget_doubleClicked(event):
+    print(event.widget.properties["text"])
+    new_value = askstring(
+        "input new value", "input new value for button")
+    event.widget.setText(new_value)
+    event.widget.properties["text"] = new_value
+    show_widget_property.emit(event.widget)
+    edit_widget_property.emit(event.widget)
+
+
 def create_buttton(parent, properties):
-    btn = Button(properties["objectName"], parent)
-    addWidget(parent, btn)
-    return btn
+    widget = PushButton(properties["text"], parent)
 
-
-def create_label(parent, properties):
-    widget = None
-    if "text" in properties:
-        widget = Label(properties["text"], parent)
-        addWidget(parent, widget)
-    return widget  
-
-
-def create_horizontal_layout(parent, properties):   
-    widget = HorizotalLayout(properties["objectName"], parent)  
-    addWidget(parent, widget)
     return widget
 
 
-def create_radio_button(parent, properties):   
-    widget = RadioButton(properties["objectName"], parent)  
-    addWidget(parent, widget)
-    return widget        
+def create_label(parent, properties):
+    widget = Label(properties["text"], parent)
+    return widget
 
 
-def create_list_widget(parent, properties):   
-    widget = ListWidget(parent)  
-    addWidget(parent, widget)
-    return widget  
+def create_horizontal_layout(parent, properties):
+    widget = HorizontalLayout(
+        properties["objectName"], parent)
+
+    return widget
 
 
-def create_tree_widget(parent, properties):   
-    widget =TreeWidget(parent)  
-    addWidget(parent, widget)
-    return widget  
-def create_Combo_box(parent, properties):   
-    widget =ComboBox(parent)  
-    addWidget(parent, widget)
-    return widget  
-# add widget
-def addWidget(parent , child):
+def create_vertical_layout(parent, properties):
+    widget = VerticalLayout(
+        properties["objectName"], parent)
+
+    return widget
+
+
+def create_radio_button(parent, properties):
+    widget = RadioButton(properties["objectName"], parent)
+    return widget
+
+
+def create_check_button(parent, properties):
+    widget = CheckButton(properties["objectName"], parent)
+    return widget
+
+
+def create_list_widget(parent, properties):
+    widget = ListWidget(parent)
+
+    return widget
+
+
+def create_tree_widget(parent, properties):
+    widget = TreeWidget(parent)
+
+    return widget
+
+
+def create_combo_box(parent, properties):
+    widget = ComboBox(parent)
+    return widget
+
+
+def create_line_edit(parent, properties):
+    widget = LineEdit(properties["text"], parent)
+    return widget
+
+
+def addWidget(parent, child):
+    child.parent = parent
     if isinstance(parent, GridLayout):
         parent.addWidgetOnRow(child)
         print("add in GridLayout")
-    if any([isinstance(parent, VerticalLayout), isinstance(parent, HorizotalLayout), isinstance(parent, HorizotalLayout), isinstance(parent, Container)]) :
+    if any([isinstance(parent, VerticalLayout), isinstance(parent, HorizontalLayout), isinstance(parent, HorizontalLayout), isinstance(parent, Container)]):
         parent.addWidget(child)
-        print("add in VerticalLayout or HorizotalLayout")
+        print("add in VerticalLayout or  HorizontalLayout")
 
 
-factory = {"Button":create_buttton, "Label":create_label, "HorizotalLayout":create_horizontal_layout, "RadioButton" :create_radio_button, "ListWidget":create_list_widget,"TreeWidget":   create_tree_widget,"ComboBox":create_Combo_box}
+def bind_doubleClicked(widget, command):
+    widget.bind("<Double-1>", command)
+
+
+factory = {"LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
+           "RadioButton": create_radio_button, "ListWidget": create_list_widget, "TreeWidget":   create_tree_widget, "ComboBox": create_combo_box}

@@ -1,0 +1,16 @@
+{
+    "PushButton": {
+        "text": "",
+        "weight": 0,
+        "relief": "",
+        "state": "normal",
+        "bg": ""
+    },
+    "label": {
+        "text": "",
+        "weight": 0,
+        "relief": "",
+        "state": "normal",
+        "bg": ""
+    }
+}
