@@ -76,13 +76,16 @@ class DragManager():
 
         if clazz in ["Line Edit", "Check Button", "Radio Button", "Push Button", "Label", "Vertical Layout", "Horizontal Layout", "Grid Layout"]:
             properties = {}
-            properties['text'] = object_name
-            properties['objectName'] = object_name
+            properties['text'] = {
+                "value": object_name, "type": "text", "content": None}
+            properties['objectName'] = {
+                "value": object_name, "type": "text", "content": None}
             widget = create_widget(
                 clazz.replace(" ", ""), target, properties)
         elif clazz in["List Widget", "Tree Widget", "Combo Box"]:
             properties = {}
-            properties['objectName'] = object_name
+            properties['objectName'] = {
+                "value": object_name, "type": "text", "content": None}
             widget = create_widget(
                 clazz.replace(" ", ""), target, properties)
         else:

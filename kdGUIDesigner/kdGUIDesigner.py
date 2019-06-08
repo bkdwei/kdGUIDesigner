@@ -4,12 +4,10 @@ Created on 2019年6月2日
 @author: bkd
 '''
 import json
-from keyrings.alt import file
 from tkinter.constants import *
 from tkinter.filedialog import LoadFileDialog, asksaveasfilename
 
 from kdGUI import *
-from tkintertable import TableCanvas, TableModel
 
 from .DragManager import DragManager
 from .exception_handler import global_exception_hander
@@ -31,7 +29,8 @@ class kdGUIDesigner(Window):
             self.show_widget_properties)
         edit_widget_property.connect(self.on_edit_widget)
         self.ui_content = {
-            "Tk": {"children": [], "properties": {"objectName": "gl_main"}}}
+            "Tk": {"children": [], "properties": {"objectName": {
+                "value": "gl_main", "type": "text", "content": None}}}}
 
         self.exception_handler = global_exception_hander()
         self.exception_handler.patch_excepthook()
@@ -48,6 +47,7 @@ class kdGUIDesigner(Window):
         self.addMainWindow()
 #         self.addObjectTree()
         self.addPropertyEditor()
+#         self.addPropertyEditor()
         self.addMenuBar()
 
         # self.widgetBox
@@ -239,18 +239,27 @@ class kdGUIDesigner(Window):
         self.addWidget(tr_widget)
 
     def addPropertyEditor(self):
-        c = Frame(self)
-        data = {
-            'rec1': {'Property': "ObjectName", 'Value': "Button"},
-            'rec2': {'Property': "text", 'Value': "PushButton"}
-        }
+        self.tw_properties = PropertyEditor(self)
+        self.addWidget(self.tw_properties)
+        self.cur_widget = None
+        self.tw_properties.value_change_signal.connect(
+            self._on_properties_value_change)
 
-        table_property = TableCanvas(
-            c, data=data, rows=10, cols=2, width=260, cellwidth=130)
-        self.addWidget(c)
-        table_property.show()
-        self.table_model = table_property.model
-        self.table_property = table_property
+    def _on_properties_value_change(self, key, value):
+        if not self.cur_widget:
+            return
+        self.cur_widget.properties[key]["value"] = value
+        update_widget_properties(self.cur_widget)
+
+    def addPropertyEditor1(self):
+        self.tw_properties = TreeWidget(self)
+        self.addWidget(self.tw_properties)
+        self.tw_properties["columns"] = (
+            "properties", "values")
+#         self.tw_properties.setColumns(
+#             ("properties", "values"))
+        self.tw_properties.setHeader("properties", 100)
+        self.tw_properties.setHeader("values", 100)
 
     def bindWidgetBox(self):
         self.dm = DragManager()
@@ -290,12 +299,17 @@ class kdGUIDesigner(Window):
                 return k
 
     def show_widget_properties(self, widget):
-        self.table_model.createEmptyModel()
-
+        self.cur_widget = widget
+        i = 0
+        self.tw_properties.clear()
         for k, v in widget.properties.items():
-            self.table_property.addRow(
-                None, Property=k, Value=v)
-        self.table_property.redraw()
+            if not "type" in v:
+                v["type"] = "text"
+            if not "content" in v:
+                v["content"] = None
+            self.tw_properties.addRow(
+                k, v["type"], v["value"], v["content"])
+            i = i + 1
 
     def open_file(self):
         fd = LoadFileDialog(self)
@@ -334,9 +348,9 @@ class kdGUIDesigner(Window):
                 w = parent
             else:
                 if "objectName" in properties:
-                    w.objectName = properties["objectName"]
+                    w.objectName = properties["objectName"]["value"]
                     setattr(
-                        self, properties["objectName"], w)
+                        self, properties["objectName"]["value"], w)
 #                     print("yes:" + getattr(self, properties["objectName"]).text())
             if children:
                 self.initUIFromJson(w, children)
@@ -375,14 +389,14 @@ class kdGUIDesigner(Window):
         parent_node["children"].append(item)
         print(self.ui_content)
 
-    def find_widget(self, obect_name, ui_content):
+    def find_widget(self, object_name, ui_content):
         for v in ui_content.values():
-            if v["properties"]["objectName"] == obect_name:
+            if v["properties"]["objectName"]["value"] == object_name:
                 return v
             elif len(v["children"]) != 0:
                 for child in v["children"]:
                     parent_node = self.find_widget(
-                        obect_name, child)
+                        object_name, child)
                     if parent_node:
                         return parent_node
                     else:
@@ -404,7 +418,7 @@ class kdGUIDesigner(Window):
             if match:
                 break
             for key, value in child.items():
-                if key == widget.__class__.__name__ and value["properties"]["objectName"] == widget.objectName:
+                if key == widget.__class__.__name__ and value["properties"]["objectName"]["value"] == widget.objectName:
                     parent_node["children"].remove(child)
                     del child
                     match = True

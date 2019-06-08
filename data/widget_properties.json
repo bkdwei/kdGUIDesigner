@@ -1,16 +1,18 @@
 {
     "PushButton": {
-        "text": "",
-        "weight": 0,
-        "relief": "",
-        "state": "normal",
-        "bg": ""
+        "text": {"value":""},
+        "state": {"value":"active","type":"list","content":["active","disabled","focus","pressed","selected","alternate","invalid"]},
+        "takefocus": {"value":1,"type":"list","content":[0,1]},
+        "width":{"value":10},
+        "command":{"value":"None"},
+        "weight": {"value":0}
     },
     "label": {
-        "text": "",
-        "weight": 0,
-        "relief": "",
-        "state": "normal",
-        "bg": ""
+        "text": {"value":""},
+	    "relief": {"value":"RAISED","type":"list","content":["FLAT","RAISED"]},
+        "weight": {"value":"0"},
+        "relief": {"value":""},
+        "state": {"value":"normal"},
+        "bg": {"value":""}
     }
 }

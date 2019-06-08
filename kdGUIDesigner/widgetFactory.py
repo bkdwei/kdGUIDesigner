@@ -54,7 +54,7 @@ def create_widget(clazz, parent, properties):
             widget.bind("<Button-1>", show_properties)
 
 #             设置组件的属性
-            widget.objectName = properties["objectName"]
+            widget.objectName = properties["objectName"]["value"]
             widget.properties = properties
         return widget
 
@@ -65,47 +65,49 @@ def deleteWidget(widget):
 
 
 def on_widget_doubleClicked(event):
-    print(event.widget.properties["text"])
+    print(event.widget.properties["text"]["value"])
     new_value = askstring(
         "input new value", "input new value for button")
     event.widget.setText(new_value)
-    event.widget.properties["text"] = new_value
+    event.widget.properties["text"]["value"] = new_value
     show_widget_property.emit(event.widget)
     edit_widget_property.emit(event.widget)
 
 
 def create_buttton(parent, properties):
-    widget = PushButton(properties["text"], parent)
+    widget = PushButton(properties["text"]["value"], parent)
 
     return widget
 
 
 def create_label(parent, properties):
-    widget = Label(properties["text"], parent)
+    widget = Label(properties["text"]["value"], parent)
     return widget
 
 
 def create_horizontal_layout(parent, properties):
     widget = HorizontalLayout(
-        properties["objectName"], parent)
+        properties["objectName"]["value"], parent)
 
     return widget
 
 
 def create_vertical_layout(parent, properties):
     widget = VerticalLayout(
-        properties["objectName"], parent)
+        properties["objectName"]["value"], parent)
 
     return widget
 
 
 def create_radio_button(parent, properties):
-    widget = RadioButton(properties["objectName"], parent)
+    widget = RadioButton(
+        properties["objectName"]["value"], parent)
     return widget
 
 
 def create_check_button(parent, properties):
-    widget = CheckButton(properties["objectName"], parent)
+    widget = CheckButton(
+        properties["objectName"]["value"], parent)
     return widget
 
 
@@ -127,7 +129,7 @@ def create_combo_box(parent, properties):
 
 
 def create_line_edit(parent, properties):
-    widget = LineEdit(properties["text"], parent)
+    widget = LineEdit(properties["text"]["value"], parent)
     return widget
 
 
@@ -143,6 +145,19 @@ def addWidget(parent, child):
 
 def bind_doubleClicked(widget, command):
     widget.bind("<Double-1>", command)
+
+
+def update_widget_properties(widget):
+    properties = widget.properties
+    for k, v in properties.items():
+        if k == "objectName":
+            widget.objectName = v["value"]
+#             setattr(self, widget.objectName, widget)
+        elif k == "weight":
+            pass
+            #             widget.grid_configure(weight=v["value"])
+        else:
+            widget.config({k: v["value"]})
 
 
 factory = {"LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
