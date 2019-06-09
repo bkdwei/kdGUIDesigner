@@ -4,13 +4,17 @@ Created on 2019年6月2日
 @author: bkd
 '''
 import json
+from os.path import join, expanduser
+from tkinter import messagebox
 from tkinter.constants import *
 from tkinter.filedialog import LoadFileDialog, asksaveasfilename
+import traceback
 
 from kdGUI import *
+from kdGUIDesigner.fileutil import check_and_create_file
 
 from .DragManager import DragManager
-from .exception_handler import global_exception_hander
+from .exception_handler import *
 from .widgetFactory import *
 
 
@@ -30,10 +34,9 @@ class kdGUIDesigner(Window):
         edit_widget_property.connect(self.on_edit_widget)
         self.ui_content = {
             "Tk": {"children": [], "properties": {"objectName": {
-                "value": "gl_main", "type": "text", "content": None}}}}
+                "value": "gl_main"}}}}
 
-        self.exception_handler = global_exception_hander()
-        self.exception_handler.patch_excepthook()
+        set_global_callback(self)
 
     def initUI(self):
         self.addWidgetBox()
@@ -284,7 +287,27 @@ class kdGUIDesigner(Window):
         fileMenu = Menu(menuBar)
         fileMenu.addAction("open", self.open_file)
         fileMenu.addAction("save", self.save_file)
+        self.get_rencent_files()
+        self.rencent_file_menu = Menu(fileMenu)
+        fileMenu.addMenu(
+            "rencent files", self.rencent_file_menu)
+        if self.rencent_files:
+            for f in self.rencent_files:
+                print("add menu action:" + f)
+                self.rencent_file_menu.addAction(
+                    f, self.open_rencent_file)
         menuBar.addMenu("file", fileMenu)
+
+    def open_rencent_file(self, file_path):
+        children = self.gl_main.childrens()
+        for child in children:
+            child.destroy()
+        print("open rencent file:" + file_path)
+        with open(file_path) as f:
+            j = json.loads(f.read())
+            self.ui_content = j
+            self.initUIFromJson(self.gl_main, j)
+        self.showMessage("你打开了文件" + file_path)
 
     def namestr(self, obj):
         ns = globals()
@@ -298,35 +321,71 @@ class kdGUIDesigner(Window):
             if v is x:
                 return k
 
+    def get_rencent_files(self):
+        self.rencent_files_path = join(expanduser(
+            "~"), "config/kdGUIDesigner/recent_fils.json")
+        check_and_create_file(self.rencent_files_path)
+        with open(self.rencent_files_path, "r") as f:
+            content = f.read().strip()
+            if content and content != "":
+                self.rencent_files = json.loads(
+                    content)
+            else:
+                self.rencent_files = []
+
     def show_widget_properties(self, widget):
         self.cur_widget = widget
         i = 0
         self.tw_properties.clear()
         for k, v in widget.properties.items():
+            print("k:" + k)
             if not "type" in v:
-                v["type"] = "text"
-            if not "content" in v:
-                v["content"] = None
-            self.tw_properties.addRow(
-                k, v["type"], v["value"], v["content"])
+                self.tw_properties.addRow(
+                    k, None, v["value"], None)
+            else:
+                self.tw_properties.addRow(
+                    k, v["type"], v["value"], get_list_content(widget.__class__.__name__, k))
             i = i + 1
 
     def open_file(self):
         fd = LoadFileDialog(self)
         filename = fd.go()
-        self.showMessage("你打开了文件" + filename)
         if filename:
+            self.showMessage("你打开了文件" + filename)
             self.opened_file = filename
             with open(filename) as f:
+                children = self.gl_main.childrens()
+                for child in children:
+                    child.destroy()
                 j = json.loads(f.read())
                 self.ui_content = j
                 self.initUIFromJson(self.gl_main, j)
+                if not filename in self.rencent_files:
+                    self.rencent_files.append(filename)
+                    self.rencent_file_menu.addAction(
+                        filename, lambda: self.open_rencent_file(filename))
+                with open(self.rencent_files_path, "w") as f:
+                    f.write(json.dumps(self.rencent_files))
 #         self.showMessage("按钮的文本是" + self.btn1.text())
 
+    def remove_type_and_content(self, content):
+        for values in content.values():
+            if isinstance(values, dict) and "properties" in values:
+                for p in values["properties"].values():
+                    if "type" in p and p["type"] == "text":
+                        del p["type"]
+                    if "content" in p:
+                        del p["content"]
+            if isinstance(values, dict) and "children" in values:
+                for child in values["children"]:
+                    self.remove_type_and_content(child)
+
     def save_file(self):
+        content = self.ui_content.copy()
+        self.remove_type_and_content(content)
         if self.opened_file:
             with open(self.opened_file, "w") as f:
-                f.write(json.dumps(self.ui_content,
+                f.write(json.dumps(content,
                                    indent=4, ensure_ascii=False))
                 self.showMessage(
                     "保存文件成功" + self.opened_file)
@@ -335,7 +394,7 @@ class kdGUIDesigner(Window):
             if self.opened_file:
                 with open(self.opened_file, "w") as f:
                     f.write(json.dumps(
-                        self.ui_content, indent=4, ensure_ascii=False))
+                        content, indent=4, ensure_ascii=False))
                     self.showMessage(
                         "保存文件成功" + self.opened_file)
 
@@ -432,6 +491,11 @@ class kdGUIDesigner(Window):
             widget.objectName, self.ui_content)
         if widget_node:
             widget_node["properties"] = widget.properties
+
+    def show_error(self, *args):
+        a = traceback.format_exception(*args)
+        messagebox.showerror(
+            a[-1], "\n".join(a[:-1]), parent=self)
 
 
 def drop(event):

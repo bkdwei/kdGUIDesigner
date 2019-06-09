@@ -20,6 +20,10 @@ with open(wp, "r") as f:
     widget_properties = json.loads(f.read())
 
 
+def get_list_content(clazz, property):
+    return widget_properties[clazz][property]["content"]
+
+
 def show_properties(event):
     show_widget_property.emit(event.widget)
 
