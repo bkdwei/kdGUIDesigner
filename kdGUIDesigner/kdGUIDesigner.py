@@ -15,6 +15,7 @@ from kdGUIDesigner.fileutil import check_and_create_file
 
 from .DragManager import DragManager
 from .exception_handler import *
+from .python_exporter import parse_ui_json
 from .widgetFactory import *
 
 
@@ -287,27 +288,35 @@ class kdGUIDesigner(Window):
         fileMenu = Menu(menuBar)
         fileMenu.addAction("open", self.open_file)
         fileMenu.addAction("save", self.save_file)
+        fileMenu.addAction(
+            "export python file", self.export_file)
         self.get_rencent_files()
         self.rencent_file_menu = Menu(fileMenu)
         fileMenu.addMenu(
             "rencent files", self.rencent_file_menu)
         if self.rencent_files:
             for f in self.rencent_files:
-                print("add menu action:" + f)
                 self.rencent_file_menu.addAction(
-                    f, self.open_rencent_file)
+                    f, self.open_rencent_file, True)
         menuBar.addMenu("file", fileMenu)
 
     def open_rencent_file(self, file_path):
         children = self.gl_main.childrens()
         for child in children:
             child.destroy()
-        print("open rencent file:" + file_path)
         with open(file_path) as f:
             j = json.loads(f.read())
             self.ui_content = j
             self.initUIFromJson(self.gl_main, j)
         self.showMessage("你打开了文件" + file_path)
+
+    def export_file(self):
+        self.parse_text = []
+        parse_ui_json(
+            self.ui_content, "self.gl_main", self.parse_text)
+        messagebox.showinfo(
+            "转换后的文件", "\n".join(self.parse_text))
+        print("\n".join(self.parse_text))
 
     def namestr(self, obj):
         ns = globals()
@@ -339,7 +348,7 @@ class kdGUIDesigner(Window):
         self.tw_properties.clear()
         for k, v in widget.properties.items():
             print("k:" + k)
-            if not "type" in v:
+            if not "type" in v or v["type"] == "text":
                 self.tw_properties.addRow(
                     k, None, v["value"], None)
             else:

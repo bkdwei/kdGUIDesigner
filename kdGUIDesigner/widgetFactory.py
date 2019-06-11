@@ -21,6 +21,7 @@ with open(wp, "r") as f:
 
 
 def get_list_content(clazz, property):
+    print("clazz:" + clazz + ",property:" + property)
     return widget_properties[clazz][property]["content"]
 
 

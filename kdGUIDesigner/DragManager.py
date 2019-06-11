@@ -53,11 +53,11 @@ class DragManager():
         # add widget
         if isinstance(target, GridLayout):
             target.addWidgetOnRow(widget)
-            print("add widget in GridLayout")
+#             print("add widget in GridLayout")
         if any([isinstance(target, VerticalLayout), isinstance(target, HorizontalLayout), isinstance(target, HorizontalLayout), isinstance(target, Container)]):
             target.addWidget(widget)
-            print(
-                "add widget in VerticalLayout or HorizontalLayout")
+#             print(
+#                 "add widget in VerticalLayout or HorizontalLayout")
 
         self.add_widget_property.emit(widget, None, target)
 
@@ -77,9 +77,9 @@ class DragManager():
         if clazz in ["Line Edit", "Check Button", "Radio Button", "Push Button", "Label", "Vertical Layout", "Horizontal Layout", "Grid Layout"]:
             properties = {}
             properties['text'] = {
-                "value": object_name, "type": "text", "content": None}
+                "value": object_name}
             properties['objectName'] = {
-                "value": object_name, "type": "text", "content": None}
+                "value": object_name}
             widget = create_widget(
                 clazz.replace(" ", ""), target, properties)
         elif clazz in["List Widget", "Tree Widget", "Combo Box"]:
