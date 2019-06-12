@@ -318,6 +318,13 @@ class kdGUIDesigner(Window):
         messagebox.showinfo(
             "转换后的文件", "\n".join(self.parse_text))
         print("\n".join(self.parse_text))
+        save_file = asksaveasfilename()
+        if save_file:
+            if not ".py" in save_file:
+                save_file += ".py"
+            with open(save_file, "w") as f:
+                f.write("\n".join(self.parse_text))
+        self.showMessage("转换文件成功" + save_file)
 
     def namestr(self, obj):
         ns = globals()
