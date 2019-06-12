@@ -37,6 +37,7 @@ class kdGUIDesigner(Window):
             "Tk": {"children": [], "properties": {"objectName": {
                 "value": "gl_main"}}}}
 
+#         处理全局异常
         set_global_callback(self)
 
     def initUI(self):

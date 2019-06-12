@@ -47,7 +47,7 @@ class DragManager():
         clazz = event.widget.text()
         widget = self.create_widget(clazz, target)
         if not widget:
-            print("无法创建" + clazz)
+            print("无法创建组件" + clazz)
             return
 
         # add widget
