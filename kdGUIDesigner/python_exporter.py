@@ -3,7 +3,6 @@ Created on 2019年6月9日
 
 @author: bkd
 '''
-from PIL._imagingmath import add_F
 from kdGUI import *
 from string import Template
 
@@ -41,36 +40,38 @@ def create_vertical_layout(parent_name, properties):
 
 def create_radio_button(parent_name, properties):
     temp = Template(
-        """        self.${objectName} = PushButton('${text}',${parent})""")
+        """        self.${objectName} = RadioButton('${text}',${parent})""")
     return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
-def create_check_button(parent, properties):
-    widget = CheckButton(
-        properties["objectName"]["value"], parent)
-    return widget
+def create_check_button(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = CheckButton('${text}',${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
-def create_list_widget(parent, properties):
-    widget = ListWidget(parent)
-
-    return widget
-
-
-def create_tree_widget(parent, properties):
-    widget = TreeWidget(parent)
-
-    return widget
+def create_list_widget(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = ListWidget(${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], parent=parent_name)
 
 
-def create_combo_box(parent, properties):
-    widget = ComboBox(parent)
-    return widget
+def create_tree_widget(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = TreeWidget(${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"],  parent=parent_name)
 
 
-def create_line_edit(parent, properties):
-    widget = LineEdit(properties["text"]["value"], parent)
-    return widget
+def create_combo_box(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = ComboBox(${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], parent=parent_name)
+
+
+def create_line_edit(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = LineEdit('${text}',${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
 def export_to_python(ui_json, parse_text, parent_name=None):

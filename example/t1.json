@@ -1,0 +1,152 @@
+{
+    "Window": {
+        "children": [
+            {
+                "HorizontalLayout": {
+                    "children": [
+                        {
+                            "PushButton": {
+                                "children": [],
+                                "properties": {
+                                    "width": {
+                                        "value": 10
+                                    },
+                                    "command": {
+                                        "value": "None"
+                                    },
+                                    "state": {
+                                        "value": "active",
+                                        "type": "list"
+                                    },
+                                    "objectName": {
+                                        "value": "PushButton_0"
+                                    },
+                                    "takefocus": {
+                                        "value": 1,
+                                        "type": "list"
+                                    },
+                                    "text": {
+                                        "value": "PushButton_0"
+                                    },
+                                    "weight": {
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "RadioButton": {
+                                "children": [],
+                                "properties": {
+                                    "objectName": {
+                                        "value": "RadioButton_0"
+                                    },
+                                    "text": {
+                                        "value": "RadioButton_0"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "CheckButton": {
+                                "children": [],
+                                "properties": {
+                                    "objectName": {
+                                        "value": "CheckButton_0"
+                                    },
+                                    "text": {
+                                        "value": "CheckButton_0"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "properties": {
+                        "objectName": {
+                            "value": "HorizontalLayout_0"
+                        },
+                        "text": {
+                            "value": "HorizontalLayout_0"
+                        }
+                    }
+                }
+            },
+            {
+                "HorizontalLayout": {
+                    "children": [
+                        {
+                            "ListWidget": {
+                                "children": [],
+                                "properties": {
+                                    "objectName": {
+                                        "value": "ListWidget_0"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "TreeWidget": {
+                                "children": [],
+                                "properties": {
+                                    "objectName": {
+                                        "value": "TreeWidget_0"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "properties": {
+                        "objectName": {
+                            "value": "HorizontalLayout_1"
+                        },
+                        "text": {
+                            "value": "HorizontalLayout_1"
+                        }
+                    }
+                }
+            },
+            {
+                "HorizontalLayout": {
+                    "children": [
+                        {
+                            "ComboBox": {
+                                "children": [],
+                                "properties": {
+                                    "objectName": {
+                                        "value": "ComboBox_0"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "LineEdit": {
+                                "children": [],
+                                "properties": {
+                                    "objectName": {
+                                        "value": "LineEdit_0"
+                                    },
+                                    "text": {
+                                        "value": "LineEdit_0"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "properties": {
+                        "objectName": {
+                            "value": "HorizontalLayout_2"
+                        },
+                        "text": {
+                            "value": "HorizontalLayout_2"
+                        }
+                    }
+                }
+            }
+        ],
+        "properties": {
+            "objectName": {
+                "value": "MainWindow"
+            }
+        }
+    }
+}
