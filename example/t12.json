@@ -1,0 +1,165 @@
+{
+    "Window": {
+        "properties": {
+            "objectName": {
+                "value": "MainWindow"
+            }
+        },
+        "children": [
+            {
+                "HorizontalLayout": {
+                    "properties": {
+                        "text": {
+                            "value": "h0"
+                        },
+                        "objectName": {
+                            "value": "h0"
+                        }
+                    },
+                    "children": [
+                        {
+                            "PushButton": {
+                                "properties": {
+                                    "weight": {
+                                        "value": 0
+                                    },
+                                    "command": {
+                                        "value": "None"
+                                    },
+                                    "width": {
+                                        "value": 10
+                                    },
+                                    "state": {
+                                        "type": "list",
+                                        "value": "active"
+                                    },
+                                    "takefocus": {
+                                        "type": "list",
+                                        "value": 1
+                                    },
+                                    "text": {
+                                        "value": "pb0"
+                                    },
+                                    "objectName": {
+                                        "value": "push0"
+                                    }
+                                },
+                                "children": []
+                            }
+                        },
+                        {
+                            "PushButton": {
+                                "properties": {
+                                    "weight": {
+                                        "value": 0
+                                    },
+                                    "command": {
+                                        "value": "None"
+                                    },
+                                    "width": {
+                                        "value": 10
+                                    },
+                                    "state": {
+                                        "type": "list",
+                                        "value": "active"
+                                    },
+                                    "takefocus": {
+                                        "type": "list",
+                                        "value": 1
+                                    },
+                                    "text": {
+                                        "value": "PushButton_1"
+                                    },
+                                    "objectName": {
+                                        "value": "PushButton_1"
+                                    }
+                                },
+                                "children": []
+                            }
+                        },
+                        {
+                            "VerticalLayout": {
+                                "properties": {
+                                    "text": {
+                                        "value": "VerticalLayout_0"
+                                    },
+                                    "objectName": {
+                                        "value": "VerticalLayout_0"
+                                    }
+                                },
+                                "children": [
+                                    {
+                                        "Label": {
+                                            "properties": {
+                                                "text": {
+                                                    "value": "Label_0"
+                                                },
+                                                "objectName": {
+                                                    "value": "Label_0"
+                                                }
+                                            },
+                                            "children": []
+                                        }
+                                    },
+                                    {
+                                        "Label": {
+                                            "properties": {
+                                                "text": {
+                                                    "value": "Label_1"
+                                                },
+                                                "objectName": {
+                                                    "value": "Label_1"
+                                                }
+                                            },
+                                            "children": []
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "HorizontalLayout": {
+                    "properties": {
+                        "text": {
+                            "value": "h1"
+                        },
+                        "objectName": {
+                            "value": "h1"
+                        }
+                    },
+                    "children": [
+                        {
+                            "Label": {
+                                "properties": {
+                                    "text": {
+                                        "value": "Label_0"
+                                    },
+                                    "objectName": {
+                                        "value": "Label_0"
+                                    }
+                                },
+                                "children": []
+                            }
+                        },
+                        {
+                            "Label": {
+                                "properties": {
+                                    "text": {
+                                        "value": "Label_1"
+                                    },
+                                    "objectName": {
+                                        "value": "Label_1"
+                                    }
+                                },
+                                "children": []
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
