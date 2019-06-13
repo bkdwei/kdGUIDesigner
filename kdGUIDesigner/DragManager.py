@@ -3,8 +3,9 @@ Created on 2019年6月2日
 
 @author: bkd
 '''
-from tkinter.simpledialog import askstring
 from kdGUI import *
+from tkinter.simpledialog import askstring
+
 from .widgetFactory import create_widget
 
 
@@ -37,6 +38,8 @@ class DragManager():
         x, y = event.widget.winfo_pointerxy()
         target = event.widget.winfo_containing(x, y)
 
+        if not target:
+            return
         # get parent
         print("get parent")
         if not any([isinstance(target, GridLayout), isinstance(target, VerticalLayout), isinstance(target, HorizontalLayout), isinstance(target, Container)]):
@@ -58,8 +61,8 @@ class DragManager():
             target.addWidget(widget)
 #             print(
 #                 "add widget in VerticalLayout or HorizontalLayout")
-
-        self.add_widget_property.emit(widget, None, target)
+        widget.parent = target
+        self.add_widget_property.emit(widget, None)
 
     def create_widget(self, clazz, target):
         #         获取新组件的下标，生成id

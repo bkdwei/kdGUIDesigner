@@ -4,43 +4,45 @@ Created on 2019年6月9日
 @author: bkd
 '''
 from PIL._imagingmath import add_F
+from kdGUI import *
 from string import Template
 
-from kdGUI import *
+
+def add_widget(parent_name, child_name, parent_class=None, child_properties=None):
+    if not parent_class and (not child_properties):
+        temp = Template(
+            """        ${parent}.addWidget(self.${child})""")
+        return temp.substitute(parent=parent_name, child=child_name)
 
 
 def create_buttton(parent_name, properties):
     btn_temp = Template(
-        """
-        self.${objectName} = PushButton('${text}',${parent})
-        ${parent}.addWidget(self.${objectName})
-""")
+        """        self.${objectName} = PushButton('${text}',${parent})""")
     return btn_temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
-def create_label(parent, properties):
-    widget = Label(properties["text"]["value"], parent)
-    return widget
+def create_label(parent_name, properties):
+    label_temp = Template(
+        """        self.${objectName} = Label('${text}',${parent})""")
+    return label_temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
-def create_horizontal_layout(parent, properties):
-    widget = HorizontalLayout(
-        properties["objectName"]["value"], parent)
-
-    return widget
-
-
-def create_vertical_layout(parent, properties):
-    widget = VerticalLayout(
-        properties["objectName"]["value"], parent)
-
-    return widget
+def create_horizontal_layout(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = HorizontalLayout('${text}',${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
-def create_radio_button(parent, properties):
-    widget = RadioButton(
-        properties["objectName"]["value"], parent)
-    return widget
+def create_vertical_layout(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = VerticalLayout('${text}',${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
+
+
+def create_radio_button(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = PushButton('${text}',${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
 def create_check_button(parent, properties):
@@ -71,16 +73,22 @@ def create_line_edit(parent, properties):
     return widget
 
 
-def export_to_python(ui_json, parse_text, parent=None):
+def export_to_python(ui_json, parse_text, parent_name=None):
+    if not parent_name:
+        parent_name = "self"
     for clazz, v in ui_json.items():
         fn = factory.get(clazz)
         if fn:
-            widget_text = fn(parent, v["properties"])
+            widget_text = fn(parent_name, v["properties"])
             parse_text.append(widget_text)
+            parse_text.append(add_widget(
+                parent_name, v["properties"]["objectName"]["value"]))
+            parent_name = "self." + \
+                v["properties"]["objectName"]["value"]
         if "children" in v:
             for child in v["children"]:
                 export_to_python(
-                    child, parse_text, "self." + v["properties"]["objectName"]["value"])
+                    child, parse_text, parent_name)
 
 
 def parse_ui_json(ui_json, parent, parse_text):

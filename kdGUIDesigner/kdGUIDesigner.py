@@ -4,13 +4,13 @@ Created on 2019年6月2日
 @author: bkd
 '''
 import json
-from os.path import join, expanduser
+from kdGUI import *
+from os.path import join, expanduser, exists
 from tkinter import messagebox
 from tkinter.constants import *
 from tkinter.filedialog import LoadFileDialog, asksaveasfilename
 import traceback
 
-from kdGUI import *
 from kdGUIDesigner.fileutil import check_and_create_file
 
 from .DragManager import DragManager
@@ -34,8 +34,8 @@ class kdGUIDesigner(Window):
             self.show_widget_properties)
         edit_widget_property.connect(self.on_edit_widget)
         self.ui_content = {
-            "Tk": {"children": [], "properties": {"objectName": {
-                "value": "gl_main"}}}}
+            "Window": {"children": [], "properties": {"objectName": {
+                "value": "MainWindow"}}}}
 
 #         处理全局异常
         set_global_callback(self)
@@ -222,7 +222,7 @@ class kdGUIDesigner(Window):
     def addMainWindow(self):
         self.gl_main = Container(
             "MainWindos - untitle", self)
-        self.gl_main.objectName = "gl_main"
+        self.gl_main.objectName = "MainWindow"
 #         self.gl_main = GridLayout("MainWindos - untitle", self)
         self.addWidget(self.gl_main, expand=YES)
         menu_layout = Menu(False, self.gl_main)
@@ -287,6 +287,7 @@ class kdGUIDesigner(Window):
         self.addMenu(menuBar)
 
         fileMenu = Menu(menuBar)
+        fileMenu.addAction("new", self.new_file)
         fileMenu.addAction("open", self.open_file)
         fileMenu.addAction("save", self.save_file)
         fileMenu.addAction(
@@ -305,6 +306,13 @@ class kdGUIDesigner(Window):
         children = self.gl_main.childrens()
         for child in children:
             child.destroy()
+        if not exists(file_path):
+            self.rencent_file_menu.removeAction(file_path)
+            self.rencent_files.remove(file_path)
+            self.showMessage(file_path + "不存在")
+            with open(self.rencent_files_path, "w") as f:
+                f.write(json.dumps(self.rencent_files))
+            return
         with open(file_path) as f:
             j = json.loads(f.read())
             self.ui_content = j
@@ -314,7 +322,7 @@ class kdGUIDesigner(Window):
     def export_file(self):
         self.parse_text = []
         parse_ui_json(
-            self.ui_content, "self.gl_main", self.parse_text)
+            self.ui_content, "self", self.parse_text)
         messagebox.showinfo(
             "转换后的文件", "\n".join(self.parse_text))
         print("\n".join(self.parse_text))
@@ -364,6 +372,13 @@ class kdGUIDesigner(Window):
                     k, v["type"], v["value"], get_list_content(widget.__class__.__name__, k))
             i = i + 1
 
+    def new_file(self):
+        self.ui_content = {
+            "Window": {"children": [], "properties": {"objectName": {
+                "value": "MainWindow"}}}}
+        self.gl_main.destroy()
+        self.addMainWindow()
+
     def open_file(self):
         fd = LoadFileDialog(self)
         filename = fd.go()
@@ -409,6 +424,8 @@ class kdGUIDesigner(Window):
         else:
             self.opened_file = asksaveasfilename()
             if self.opened_file:
+                if not ".json" in self.opened_file:
+                    self.opened_file += ".json"
                 with open(self.opened_file, "w") as f:
                     f.write(json.dumps(
                         content, indent=4, ensure_ascii=False))
@@ -449,7 +466,7 @@ class kdGUIDesigner(Window):
                     print("children:", children)
         return clazz, properties, children
 
-    def on_add_widget(self, widget, properties, parent):
+    def on_add_widget(self, widget, properties):
         parent_name = widget.parent.objectName
         parent_node = self.find_widget(
             parent_name, self.ui_content)
