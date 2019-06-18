@@ -4,12 +4,13 @@ Created on 2019年6月2日
 @author: bkd
 '''
 import json
-from kdGUI import *
 from os.path import join, expanduser, exists
 from tkinter import messagebox
 from tkinter.constants import *
 from tkinter.filedialog import LoadFileDialog, asksaveasfilename
 import traceback
+
+from kdGUI import *
 
 from kdGUIDesigner.fileutil import check_and_create_file
 
@@ -19,7 +20,7 @@ from .python_exporter import parse_ui_json
 from .widgetFactory import *
 
 
-class kdGUIDesigner(Window):
+class kdGUIDesigner(ThemedWindow):
 
     def __init__(self):
         super().__init__()
