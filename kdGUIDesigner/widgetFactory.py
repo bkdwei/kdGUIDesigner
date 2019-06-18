@@ -100,7 +100,12 @@ def create_horizontal_layout(parent, properties):
 def create_vertical_layout(parent, properties):
     widget = VerticalLayout(
         properties["objectName"]["value"], parent)
+    return widget
 
+
+def create_grid_layout(parent, properties):
+    widget = GridLayout(
+        properties["objectName"]["value"], parent)
     return widget
 
 
@@ -141,7 +146,7 @@ def create_line_edit(parent, properties):
 def addWidget(parent, child, row=None, column=None):
     child.parent = parent
     if isinstance(parent, GridLayout):
-        parent.addWidgetOnRow(child)
+        parent.addWidget(child, row, column)
         print("add in GridLayout")
     elif isinstance(parent, Container) and parent.getLayout() == "grid":
         parent.addWidget(child, row, column)
@@ -169,5 +174,5 @@ def update_widget_properties(widget):
             widget.config({k: v["value"]})
 
 
-factory = {"LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
+factory = {"GridLayout": create_grid_layout, "LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
            "RadioButton": create_radio_button, "ListWidget": create_list_widget, "TreeWidget":   create_tree_widget, "ComboBox": create_combo_box}
