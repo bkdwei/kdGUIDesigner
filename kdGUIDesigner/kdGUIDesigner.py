@@ -4,13 +4,12 @@ Created on 2019年6月2日
 @author: bkd
 '''
 import json
+from kdGUI import *
 from os.path import join, expanduser, exists
 from tkinter import messagebox
 from tkinter.constants import *
 from tkinter.filedialog import LoadFileDialog, asksaveasfilename
 import traceback
-
-from kdGUI import *
 
 from kdGUIDesigner.fileutil import check_and_create_file
 
@@ -26,7 +25,7 @@ class kdGUIDesigner(ThemedWindow):
         super().__init__()
         self.setTitle("kdGUIDesigner")
         self.setLayout(HORIZONTAL)
-        self.setTheme("clearlooks")
+        self.setTheme("scidblue")
         self.initUI()
         self.bindWidgetBox()
         self.opened_file = None
@@ -223,6 +222,7 @@ class kdGUIDesigner(ThemedWindow):
     def addMainWindow(self):
         self.gl_main = Container(
             "MainWindos - untitle", self)
+        self.gl_main.setLayout("grid")
         self.gl_main.objectName = "MainWindow"
 #         self.gl_main = GridLayout("MainWindos - untitle", self)
         self.addWidget(self.gl_main, expand=YES)
@@ -271,6 +271,8 @@ class kdGUIDesigner(ThemedWindow):
         self.dm = DragManager()
         self.dm.add_widget_property.connect(
             self.on_add_widget)
+
+        self.dm.show_mouse_info.connect(self.showMessage)
 
         _containers = self.widgetBox.childrens()
         for c in _containers:

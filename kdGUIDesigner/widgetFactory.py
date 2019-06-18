@@ -5,11 +5,11 @@ Created on 2019年6月4日
 '''
 
 import json
+from kdGUI import *
 from tkinter.simpledialog import askstring
 
-from kdGUI import *
-
 from .fileutil import get_file_realpath
+
 
 show_widget_property = kdSignal()
 del_widget_property = kdSignal()
@@ -29,7 +29,7 @@ def show_properties(event):
     show_widget_property.emit(event.widget)
 
 
-def create_widget(clazz, parent, properties):
+def create_widget(clazz, parent, properties, row=None, column=None):
     fn = factory.get(clazz)
     if fn:
         #         获取默认属性
@@ -42,7 +42,7 @@ def create_widget(clazz, parent, properties):
 
         if widget:
             #             添加到父容器
-            addWidget(parent, widget)
+            addWidget(parent, widget, row, column)
 
 #             绑定修改文本事件
             if clazz in ["LineEdit", "CheckButton", "RadioButton", "PushButton", "Label", "VerticalLayout", "HorizontalLayout", "GridLayout"]:
@@ -138,14 +138,18 @@ def create_line_edit(parent, properties):
     return widget
 
 
-def addWidget(parent, child):
+def addWidget(parent, child, row=None, column=None):
     child.parent = parent
     if isinstance(parent, GridLayout):
         parent.addWidgetOnRow(child)
         print("add in GridLayout")
-    if any([isinstance(parent, VerticalLayout), isinstance(parent, HorizontalLayout), isinstance(parent, HorizontalLayout), isinstance(parent, Container)]):
+    elif isinstance(parent, Container) and parent.getLayout() == "grid":
+        parent.addWidget(child, row, column)
+    elif any([isinstance(parent, VerticalLayout), isinstance(parent, HorizontalLayout), isinstance(parent, HorizontalLayout)]):
         parent.addWidget(child)
         print("add in VerticalLayout or  HorizontalLayout")
+    else:
+        parent.addWidget(child)
 
 
 def bind_doubleClicked(widget, command):
