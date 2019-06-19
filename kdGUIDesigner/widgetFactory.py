@@ -5,6 +5,7 @@ Created on 2019年6月4日
 '''
 
 import json
+from tkinter.constants import VERTICAL
 from tkinter.simpledialog import askstring
 
 from kdGUI import *
@@ -137,7 +138,17 @@ def create_list_widget(parent, properties):
 
 def create_tree_widget(parent, properties):
     widget = TreeWidget(parent)
+    return widget
 
+
+def create_text_edit(parent, properties):
+    widget = Text(parent)
+    return widget
+
+
+def create_spinbox(parent, properties):
+    widget = Spinbox(parent)
+    widget.setValue(0)
     return widget
 
 
@@ -148,6 +159,16 @@ def create_combo_box(parent, properties):
 
 def create_line_edit(parent, properties):
     widget = LineEdit(properties["text"]["value"], parent)
+    return widget
+
+
+def create_horizontal_line(parent, properties):
+    widget = Line(HORIZONTAL, parent)
+    return widget
+
+
+def create_vertical_line(parent, properties):
+    widget = Line(VERTICAL, parent)
     return widget
 
 
@@ -182,5 +203,5 @@ def update_widget_properties(widget):
             widget.config({k: v["value"]})
 
 
-factory = {"GridLayout": create_grid_layout, "LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
+factory = {"VerticalLine" :create_vertical_line, "HorizontalLine":create_horizontal_line, "SpinBox":create_spinbox, "TextEdit":create_text_edit, "GridLayout": create_grid_layout, "LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
            "RadioButton": create_radio_button, "ListWidget": create_list_widget, "TreeWidget":   create_tree_widget, "ComboBox": create_combo_box}
