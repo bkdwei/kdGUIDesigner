@@ -6,12 +6,12 @@ Created on 2019年6月2日
 import json
 from os.path import join, expanduser, exists
 from tkinter import messagebox
+from tkinter import tix
 from tkinter.constants import *
 from tkinter.filedialog import LoadFileDialog, asksaveasfilename
 import traceback
 
 from kdGUI import *
-
 from kdGUIDesigner.fileutil import check_and_create_file
 
 from .DragManager import DragManager
@@ -20,13 +20,13 @@ from .python_exporter import parse_ui_json
 from .widgetFactory import *
 
 
-class kdGUIDesigner(ThemedWindow):
+class kdGUIDesigner(Window):
 
     def __init__(self):
         super().__init__()
         self.setTitle("kdGUIDesigner")
         self.setLayout(HORIZONTAL)
-        self.setTheme("vista")
+#         self.setTheme("vista")
         self.initUI()
         self.bindWidgetBox()
         self.opened_file = None
@@ -58,17 +58,17 @@ class kdGUIDesigner(ThemedWindow):
 
         # self.widgetBox
     def addWidgetBox(self):
-        self.widgetBox = VerticalLayout("widget Box", self)
-        print(type(self.widgetBox))
+        self.widgetBox = ScrolledWindow(self)
+#         print(type(self.widgetBox))
         self.addWidget(self.widgetBox)
         # 过滤
-        le_filter = LineEdit("Filter", self.widgetBox)
+        le_filter = LineEdit("Filter", self.widgetBox.w)
         self.widgetBox.addWidget(le_filter)
 
     # layouts
     def addLayouts(self):
         vl_layouts = VerticalLayout(
-            "Layouts", self.widgetBox)
+            "Layouts", self.widgetBox.w)
         lb_verticalLayout = Label(
             "Vertical Layout", vl_layouts)
         lb_verticalLayout.setAnchor("w")
@@ -93,7 +93,7 @@ class kdGUIDesigner(ThemedWindow):
         # spacers
     def addSpacers(self):
         vl_spacers = VerticalLayout(
-            "Spacers", self.widgetBox)
+            "Spacers", self.widgetBox.w)
 
         lb_horizontalSpacer = Label(
             "Horizontal Spacer", vl_spacers)
@@ -110,7 +110,7 @@ class kdGUIDesigner(ThemedWindow):
     # buttons
     def addButtons(self):
         vl_buttons = VerticalLayout(
-            "Buttons", self.widgetBox)
+            "Buttons", self.widgetBox.w)
 
         lb_pushbutton = Label("Push Button", vl_buttons)
         lb_pushbutton.setAnchor("w")
@@ -129,7 +129,7 @@ class kdGUIDesigner(ThemedWindow):
     # item widgets
     def addItemWidgets(self):
         vl_item_widgets = VerticalLayout(
-            "Item Widgets", self.widgetBox)
+            "Item Widgets", self.widgetBox.w)
 
         lb_list_widget = Label(
             "List Widget", vl_item_widgets)
@@ -151,7 +151,7 @@ class kdGUIDesigner(ThemedWindow):
     # containers
     def addContainers(self):
         vl_containers = VerticalLayout(
-            "Containers", self.widgetBox)
+            "Containers", self.widgetBox.w)
 
         lb_scroll_area = Label("Scroll Area", vl_containers)
         lb_scroll_area.setAnchor("w")
@@ -166,7 +166,7 @@ class kdGUIDesigner(ThemedWindow):
     # input widget
     def addInputWidgets(self):
         vl_input_widgets = VerticalLayout(
-            "Input Widgets", self.widgetBox)
+            "Input Widgets", self.widgetBox.w)
 
         lb_combobox = Label("Combo Box", vl_input_widgets)
         lb_combobox.setAnchor("w")
@@ -202,7 +202,7 @@ class kdGUIDesigner(ThemedWindow):
     # display widgets
     def addDisplayWidgets(self):
         vl_display_widgets = VerticalLayout(
-            "Display Widgets", self.widgetBox)
+            "Display Widgets", self.widgetBox.w)
 
         lb_label = Label("Label", vl_display_widgets)
         lb_label.setAnchor("w")
@@ -217,6 +217,16 @@ class kdGUIDesigner(ThemedWindow):
             "Prograss Bar", vl_display_widgets)
         lb_progress_bar.setAnchor("w")
         vl_display_widgets.addWidget(lb_progress_bar)
+        
+        lb_horizontal_line = Label(
+            "Horizontal Line", vl_display_widgets)
+        lb_progress_bar.setAnchor("w")
+        vl_display_widgets.addWidget(lb_horizontal_line)
+        lb_vertical_line = Label(
+            "Vertical Line", vl_display_widgets)
+        lb_progress_bar.setAnchor("w")
+        vl_display_widgets.addWidget(lb_vertical_line)
+        
         self.widgetBox.addWidget(vl_display_widgets)
 
     # main windows
@@ -368,12 +378,13 @@ class kdGUIDesigner(ThemedWindow):
         self.tw_properties.clear()
         for k, v in widget.properties.items():
             print("k:" + k)
-            if not "type" in v or v["type"] == "text":
-                self.tw_properties.addRow(
-                    k, None, v["value"], None)
-            else:
-                self.tw_properties.addRow(
-                    k, v["type"], v["value"], get_list_content(widget.__class__.__name__, k))
+            if isinstance(v, dict):
+                if not "type" in v or v["type"] == "text":
+                    self.tw_properties.addRow(
+                        k, None, v["value"], None)
+                else:
+                    self.tw_properties.addRow(
+                        k, v["type"], v["value"], get_list_content(widget.__class__.__name__, k))
             i = i + 1
 
     def new_file(self):
@@ -548,5 +559,5 @@ def drop(event):
 def main():
     app = kdGUIDesigner()
 
-    app.showMaximized()
+#     app.showMaximized()
     app.run()
