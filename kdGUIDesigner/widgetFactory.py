@@ -5,11 +5,11 @@ Created on 2019年6月4日
 '''
 
 import json
-from kdGUI import *
 from tkinter.simpledialog import askstring
 
-from .fileutil import get_file_realpath
+from kdGUI import *
 
+from .fileutil import get_file_realpath
 
 show_widget_property = kdSignal()
 del_widget_property = kdSignal()
@@ -60,6 +60,14 @@ def create_widget(clazz, parent, properties, row=None, column=None):
 
 #             设置组件的属性
             widget.objectName = properties["objectName"]["value"]
+            if parent.getLayout() == "grid":
+                grid_info = widget.grid_info()
+                if "row" in grid_info:
+                    properties["row"] = grid_info["row"]
+                    properties["column"] = grid_info["column"]
+                else :
+                    widget.destroy()
+                    return
             widget.properties = properties
         return widget
 

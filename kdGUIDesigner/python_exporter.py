@@ -3,12 +3,22 @@ Created on 2019年6月9日
 
 @author: bkd
 '''
-from kdGUI import *
 from string import Template
+
+from kdGUI import *
 
 
 def add_widget(parent_name, child_name, parent_class=None, child_properties=None):
-    if not parent_class and (not child_properties):
+    if child_properties:
+        if "row" in child_properties and "column" in child_properties:
+            temp = Template(
+            """        ${parent}.addWidget(self.${child},${row},${column})""")
+            return temp.substitute(parent=parent_name, child=child_name, row=child_properties["row"], column=child_properties["column"])
+        else :
+            temp = Template(
+                """        ${parent}.addWidget(self.${child})""")
+            return temp.substitute(parent=parent_name, child=child_name)
+    elif not parent_class and (not child_properties):
         temp = Template(
             """        ${parent}.addWidget(self.${child})""")
         return temp.substitute(parent=parent_name, child=child_name)
@@ -38,6 +48,12 @@ def create_vertical_layout(parent_name, properties):
     return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
 
 
+def create_grid_layout(parent_name, properties):
+    temp = Template(
+        """        self.${objectName} = GridLayout('${text}',${parent})""")
+    return temp.substitute(objectName=properties["objectName"]["value"], text=properties["text"]["value"], parent=parent_name)
+
+
 def create_radio_button(parent_name, properties):
     temp = Template(
         """        self.${objectName} = RadioButton('${text}',${parent})""")
@@ -59,7 +75,7 @@ def create_list_widget(parent_name, properties):
 def create_tree_widget(parent_name, properties):
     temp = Template(
         """        self.${objectName} = TreeWidget(${parent})""")
-    return temp.substitute(objectName=properties["objectName"]["value"],  parent=parent_name)
+    return temp.substitute(objectName=properties["objectName"]["value"], parent=parent_name)
 
 
 def create_combo_box(parent_name, properties):
@@ -83,7 +99,7 @@ def export_to_python(ui_json, parse_text, parent_name=None):
             widget_text = fn(parent_name, v["properties"])
             parse_text.append(widget_text)
             parse_text.append(add_widget(
-                parent_name, v["properties"]["objectName"]["value"]))
+                parent_name, v["properties"]["objectName"]["value"], None, v["properties"]))
             parent_name = "self." + \
                 v["properties"]["objectName"]["value"]
         if "children" in v:
@@ -117,5 +133,5 @@ app.run()
 """
 
 
-factory = {"LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
+factory = {"GridLayout":create_grid_layout, "LineEdit": create_line_edit, "CheckButton": create_check_button, "PushButton": create_buttton, "Label": create_label, "HorizontalLayout": create_horizontal_layout, "VerticalLayout": create_vertical_layout,
            "RadioButton": create_radio_button, "ListWidget": create_list_widget, "TreeWidget":   create_tree_widget, "ComboBox": create_combo_box}

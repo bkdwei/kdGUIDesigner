@@ -3,8 +3,9 @@ Created on 2019年6月2日
 
 @author: bkd
 '''
-from kdGUI import *
 from tkinter.simpledialog import askstring
+
+from kdGUI import *
 
 from .widgetFactory import create_widget
 
@@ -32,21 +33,21 @@ class DragManager():
     def on_drag(self, event):
         #         you could use this method to move a floating window that
         #         represents what you're dragging
-        x, y = event.widget.winfo_pointerxy()
-        target = event.widget.winfo_containing(x, y)
-#         msg = "，y：" + str(event.y) + "source:" + str(event.widget.winfo_pointery()) + \
-#             ",target:" + str(target.winfo_pointery())
-
-        if target and hasattr(target, "properties"):
-            print("in on on_drag",
-                  target.properties["text"]["value"])
-#             target["state"] = DISABLED
-            msg = "widget，x：" + str(x) + "，y：" + str(y) + \
-                ",target:x" + str(target.winfo_rootx()) + ",y:" + str(target.winfo_rooty()) + ",bottom:" + \
-                str(target.winfo_height())
-            msg += target.properties["text"]["value"]
-            self.show_mouse_info.emit(msg)
-#         pass
+#         x, y = event.widget.winfo_pointerxy()
+#         target = event.widget.winfo_containing(x, y)
+# #         msg = "，y：" + str(event.y) + "source:" + str(event.widget.winfo_pointery()) + \
+# #             ",target:" + str(target.winfo_pointery())
+# 
+#         if target and hasattr(target, "properties"):
+#             print("in on on_drag",
+#                   target.properties["text"]["value"])
+# #             target["state"] = DISABLED
+#             msg = "widget，x：" + str(x) + "，y：" + str(y) + \
+#                 ",target:x" + str(target.winfo_rootx()) + ",y:" + str(target.winfo_rooty()) + ",bottom:" + \
+#                 str(target.winfo_height())
+#             msg += target.properties["text"]["value"]
+#             self.show_mouse_info.emit(msg)
+        pass
 
     def on_drop(self, event):
         x, y = event.widget.winfo_pointerxy()

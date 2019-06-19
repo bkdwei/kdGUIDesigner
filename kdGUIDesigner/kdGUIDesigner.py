@@ -4,12 +4,13 @@ Created on 2019年6月2日
 @author: bkd
 '''
 import json
-from kdGUI import *
 from os.path import join, expanduser, exists
 from tkinter import messagebox
 from tkinter.constants import *
 from tkinter.filedialog import LoadFileDialog, asksaveasfilename
 import traceback
+
+from kdGUI import *
 
 from kdGUIDesigner.fileutil import check_and_create_file
 
@@ -25,7 +26,7 @@ class kdGUIDesigner(ThemedWindow):
         super().__init__()
         self.setTitle("kdGUIDesigner")
         self.setLayout(HORIZONTAL)
-        self.setTheme("scidblue")
+        self.setTheme("vista")
         self.initUI()
         self.bindWidgetBox()
         self.opened_file = None
@@ -407,10 +408,11 @@ class kdGUIDesigner(ThemedWindow):
         for values in content.values():
             if isinstance(values, dict) and "properties" in values:
                 for p in values["properties"].values():
-                    if "type" in p and p["type"] == "text":
-                        del p["type"]
-                    if "content" in p:
-                        del p["content"]
+                    if isinstance(p, dict) :
+                        if "type" in p and p["type"] == "text":
+                            del p["type"]
+                        if "content" in p:
+                            del p["content"]
             if isinstance(values, dict) and "children" in values:
                 for child in values["children"]:
                     self.remove_type_and_content(child)
@@ -439,7 +441,11 @@ class kdGUIDesigner(ThemedWindow):
         if isinstance(json, dict):
             widget, properties, children = self.get_widget(
                 json)
-            w = create_widget(widget, parent, properties)
+            w = None
+            if "row" in properties and "column" in properties:
+                w = create_widget(widget, parent, properties, properties["row"], properties["column"])
+            else:
+                w = create_widget(widget, parent, properties)
             if not w:
                 w = parent
             else:
